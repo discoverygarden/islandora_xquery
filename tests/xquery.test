@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Unit tests for XQuery wrapper functions.
+ */
+
+class XQueryUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Gets info to display to describe this test.
+   *
+   * @see DrupalUnitTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'XQuery Unit Tests',
+      'description' => 'Ensure that XQuery functions correctly.',
+      'group' => 'Islandora',
+    );
+  }
+
+  /**
+   * Sets up the requirements for this test.
+   *
+   * @see DrupalUnitTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp('islandora_xquery');
+  }
+
+  /**
+   * Test running XQuery against fixtures.
+   */
+  public function testXQuery() {
+  }
+
+}
