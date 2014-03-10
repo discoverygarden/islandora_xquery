@@ -4,3 +4,62 @@
  * @file
  * Defines all the hooks this module implements.
  */
+
+/**
+ * Implements hook_menu().
+ */
+function islandora_xquery_menu() {
+  $items = array();
+  $items['admin/islandora/xquery/manage'] = array(
+    'title' => 'XQuery',
+    'description' => 'Configure templates for Islandora XQuery',
+    'access arguments' => array('administer islandora_xquery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_template_overview_form'),
+    'file' => 'includes/overview.inc',
+  );
+  $items['admin/islandora/xquery/manage/template/%'] = array(
+    'title' => 'Manage Template',
+    'description' => 'Manages a specific template for use in Islandora XQuery',
+    'access callback' => 'islandora_xquery_access',
+    'access arguments' => array(5),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_template_management_form', 5),
+    'file' => 'includes/manage.inc',
+  );
+  $items['admin/islandora/xquery/manage/template/%/delete'] = array(
+    'title' => 'Delete Template',
+    'description' => 'Deletes a specific template from Islandora XQuery',
+    'access callback' => 'islandora_xquery_access',
+    'access arguments' => array(5),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_template_delete_confirm_form', 5),
+    'file' => 'includes/delete.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function islandora_xquery_permission() {
+  return array(
+    'administer islandora_xquery' => array(
+      'title' => 'Create and manage XQuery templates for use in batch metadata updates',
+    ),
+  );
+}
+
+/**
+ * Access callback for accessing a association based upon ID.
+ *
+ * @param int $association_id
+ *   The configuration ID of the list we are accessing.
+ *
+ * @return bool
+ *   TRUE if the user has permission and the list exists, FALSE otherwise.
+ */
+function islandora_xquery_access($association_id) {
+  module_load_include('inc', 'islandora_xquery', 'includes/db');
+  return islandora_xquery_association_exists($association_id) && user_access('adminisiter islandora_xquery');
+}

@@ -5,4 +5,88 @@
  * Defines the install and uninstall hooks for this module.
  */
 
+/**
+ * Implements hook_schema().
+ */
+function islandora_xquery_schema() {
+  $schema['islandora_xquery_associations'] = array(
+    'description' => 'Table that stores saved template names.',
+    'fields' => array(
+      'association_id' => array(
+        'description' => 'Unique ID given to each association',
+        'type' => 'serial',
+        'length' => 11,
+        'not null' => TRUE,
+      ),
+      'template_name' => array(
+        'description' => 'The name of the template',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'template_description' => array(
+        'description' => 'The description of the template',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'description' => 'The machine readable name for this association',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('association_id'),
+  );
+  $schema['islandora_xquery_xquery'] = array(
+    'description' => 'Table that stores XQuery values.',
+    'fields' => array(
+      'association_id' => array(
+        'description' => 'Unique ID given to each association',
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+      ),
+      'xquery' => array(
+        'description' => 'Holds the XQuery defined for an association',
+        'type' => 'blob',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary_key' => array('association_id'),
+  );
+  $schema['islandora_xquery_tokens'] = array(
+    'description' => 'Table that stores token information.',
+    'fields' => array(
+      'association_id' => array(
+        'description' => 'Unique ID given to each association',
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+      ),
+      'token_name' => array(
+        'description' => 'The name of the token',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'token_description' => array(
+        'description' => 'The description of the token',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'token_default' => array(
+        'description' => 'The default value of the token',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('association_id', 'token_name'),
+  );
+  return $schema;
+}
 // @todo Add function to test for Zorba install.
