@@ -20,6 +20,8 @@
 function islandora_xquery_template_management_form($form, &$form_state, $association_id) {
   module_load_include('inc', 'islandora_xquery', 'includes/db');
   $token_to_add = FALSE;
+  $data = array();
+  $xquery = '';
   if (isset($form_state['triggering_element'])) {
     if ($form_state['triggering_element']['#name'] == 'islandora-xquery-add-token') {
       $token_to_add = array(
@@ -40,23 +42,15 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
         unset($form_state['complete form']['replacement_tokens']['table']['#options'][$row_number]);
       }
     }
-  }
-  $form = array(
-    '#tree' => TRUE,
-  );
-  $form['association_id'] = array(
-    '#type' => 'value',
-    '#value' => $association_id,
-  );
-  // If there are values in the form_state use them for persistence in case of
-  // AJAX callbacks, otherwise grab fresh values from the database.
-  $data = array();
-  if (isset($form_state['values'])) {
+
+    // If there are values in the form_state use them for persistence in case of
+    // AJAX callbacks, otherwise grab fresh values from the database.
     if (!empty($form_state['complete form']['replacement_tokens']['table']['#options'])) {
       $data = $form_state['complete form']['replacement_tokens']['table']['#options'];
       foreach ($data as &$val) {
         $val = islandora_xquery_token_database_structure($val);
       }
+      unset($val);
     }
 
     if (isset($form_state['values']['xquery'])) {
@@ -72,6 +66,14 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
     $form_state['tokens_database'] = $data;
     $form_state['xquery_database'] = $xquery;
   }
+
+  $form = array(
+    '#tree' => TRUE,
+  );
+  $form['association_id'] = array(
+    '#type' => 'value',
+    '#value' => $association_id,
+  );
 
   if ($token_to_add !== FALSE) {
     $data[$token_to_add['token_name']] = $token_to_add;
@@ -301,10 +303,10 @@ function islandora_xquery_template_management_table($data) {
  *   An array in the database form we expect.
  */
 function islandora_xquery_token_database_structure($value) {
-  $token_db = array();
-  $token_db['token_name'] = array_shift($value);
-  $token_db['token_description'] = array_shift($value);
-  $default = array_shift($value);
-  $token_db['token_default'] = empty($default) ? NULL : $default;
+  $keys = array('token_name', 'token_description', 'token_default');
+  $token_db = array_combine($keys, $value);
+  if (empty($token_db['token_default'])) {
+    $token_db['token_default'] = NULL;
+  }
   return $token_db;
 }

@@ -45,7 +45,7 @@ function islandora_xquery_menu() {
 function islandora_xquery_permission() {
   return array(
     'administer islandora_xquery' => array(
-      'title' => 'Create and manage XQuery templates for use in batch metadata updates',
+      'title' => 'Create and manage XQuery templates',
     ),
   );
 }
