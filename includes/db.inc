@@ -143,7 +143,7 @@ function islandora_xquery_get_xquery($association_id) {
  */
 function islandora_xquery_add_tokens($association_id, $tokens) {
   foreach ($tokens as $token) {
-    $field['association_id'] = $association_id;
+    $token['association_id'] = $association_id;
     db_insert('islandora_xquery_tokens')
       ->fields(array(
           'association_id',

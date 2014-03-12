@@ -23,7 +23,8 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
   $data = array();
   $xquery = '';
   if (isset($form_state['triggering_element'])) {
-    if ($form_state['triggering_element']['#name'] == 'islandora-xquery-add-token') {
+    $parents = $form_state['triggering_element']['#parents'];
+    if ($parents == array('replacement_tokens', 'add_fieldset', 'add')) {
       $token_to_add = array(
         'token_name' => $form_state['values']['replacement_tokens']['add_fieldset']['token'],
         'token_description' => $form_state['values']['replacement_tokens']['add_fieldset']['description'],
@@ -31,7 +32,7 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
       );
     }
 
-    if ($form_state['triggering_element']['#name'] == 'islandora-xquery-remove-selected') {
+    if ($parents == array('replacement_tokens', 'remove_selected')) {
       $rows_to_remove = array();
       foreach ($form_state['values']['replacement_tokens']['table'] as $key => $row) {
         if ($row == TRUE) {
@@ -96,7 +97,6 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
     $form['replacement_tokens']['remove_selected'] = array(
       '#type' => 'button',
       '#value' => t('Remove selected'),
-      '#name' => 'islandora-xquery-remove-selected',
       '#ajax' => array(
         'callback' => 'islandora_xquery_ajax',
         'wrapper' => 'islandora-xquery-tokens-wrapper',
@@ -124,20 +124,20 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
   $form['replacement_tokens']['add_fieldset']['add'] = array(
     '#type' => 'button',
     '#value' => t('Add'),
-    '#name' => 'islandora-xquery-add-token',
     '#ajax' => array(
       'callback' => 'islandora_xquery_ajax',
       'wrapper' => 'islandora-xquery-tokens-wrapper',
     ),
   );
-  $form['submit'] = array(
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#name' => 'islandora-xquery-submit-template',
     '#value' => t('Save template'),
   );
-  $form['delete'] = array(
+  $form['actions']['delete'] = array(
     '#type' => 'submit',
-    '#name' => 'islandora-xquery-delete-template',
     '#value' => t('Delete template'),
   );
   return $form;
@@ -152,7 +152,8 @@ function islandora_xquery_template_management_form($form, &$form_state, $associa
  *   An array containing the Drupal form state.
  */
 function islandora_xquery_template_management_form_validate($form, &$form_state) {
-  if ($form_state['triggering_element']['#name'] == 'islandora-xquery-add-token') {
+  $parents = $form_state['triggering_element']['#parents'];
+  if ($parents == array('replacement_tokens', 'add_fieldset', 'add')) {
     if (empty($form_state['values']['replacement_tokens']['add_fieldset']['token'])) {
       form_error($form['replacement_tokens']['add_fieldset']['token'], t('The token field must not be empty.'));
     }
@@ -175,14 +176,14 @@ function islandora_xquery_template_management_form_validate($form, &$form_state)
     }
   }
 
-  if ($form_state['triggering_element']['#name'] == 'islandora-xquery-submit-template') {
+  if ($parents == array('actions', 'submit')) {
     // Check to see if the XQuery text area is empty.
     if (empty($form_state['values']['xquery'])) {
       form_error($form['xquery'], t('An XQuery must be defined!'));
     }
   }
 
-  if ($form_state['triggering_element']['#name'] == 'islandora-xquery-remove-selected') {
+  if ($parents == array('replacement_tokens', 'remove_selected')) {
     $rows_to_remove = array();
     foreach ($form_state['values']['replacement_tokens']['table'] as $key => $row) {
       if ($row['remove_field'] == TRUE) {
@@ -204,7 +205,8 @@ function islandora_xquery_template_management_form_validate($form, &$form_state)
  *   An array containing the Drupal form state.
  */
 function islandora_xquery_template_management_form_submit($form, &$form_state) {
-  if ($form_state['triggering_element']['#name'] == 'islandora-xquery-submit-template') {
+  $parents = $form_state['triggering_element']['#parents'];
+  if ($parents == array('actions', 'submit')) {
     module_load_include('inc', 'islandora_xquery', 'includes/db');
     $association_id = $form_state['values']['association_id'];
     $xquery = $form_state['values']['xquery'];
@@ -234,7 +236,7 @@ function islandora_xquery_template_management_form_submit($form, &$form_state) {
     }
     drupal_set_message(t('The template changes have been saved!'));
   }
-  if ($form_state['triggering_element']['#name'] == 'islandora-xquery-delete-template') {
+  if ($parents == array('actions', 'delete')) {
     $association_id = $form_state['values']['association_id'];
     drupal_goto("admin/islandora/xquery/manage/template/$association_id/delete");
   }
