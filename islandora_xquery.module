@@ -61,5 +61,5 @@ function islandora_xquery_permission() {
  */
 function islandora_xquery_access($association_id) {
   module_load_include('inc', 'islandora_xquery', 'includes/db');
-  return islandora_xquery_association_exists($association_id) && user_access('adminisiter islandora_xquery');
+  return islandora_xquery_association_exists($association_id) && user_access('administer islandora_xquery');
 }
