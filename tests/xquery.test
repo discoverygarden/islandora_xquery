@@ -27,12 +27,22 @@ class XQueryUnitTestCase extends DrupalUnitTestCase {
    */
   public function setUp() {
     parent::setUp('islandora_xquery');
+    module_load_include('inc', 'islandora_xquery', 'includes/utilities');
   }
 
   /**
    * Test running XQuery against fixtures.
    */
   public function testXQuery() {
+    $version = islandora_xquery_get_zorba_version();
+    if ($version === FALSE || version_compare(ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, $version, '>')) {
+      $this->fail('Valid version of Zorba was not found.');
+      return;
+    }
+    else {
+      $this->pass('Valid version of Zorba was found.');
+    }
+
   }
 
 }

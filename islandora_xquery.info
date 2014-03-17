@@ -4,4 +4,5 @@ package = Islandora
 version = 7.x-dev
 core = 7.x
 dependencies[] = islandora
+files[] = tests/xquery.test
 php = 5.3
