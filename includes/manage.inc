@@ -2,6 +2,10 @@
 /**
  * @file
  * Template management form for the Islandora XQuery module.
+ * @todo
+ *   Validate machine names.
+ * @todo
+ *   Adopt a string formatting language for token replacement.
  */
 
 /**

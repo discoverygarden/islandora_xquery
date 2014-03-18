@@ -63,3 +63,19 @@ function islandora_xquery_access($association_id) {
   module_load_include('inc', 'islandora_xquery', 'includes/db');
   return islandora_xquery_association_exists($association_id) && user_access('adminisiter islandora_xquery');
 }
+
+/**
+ * Implements hook_islandora_solr_primary_display().
+ */
+function islandora_xquery_islandora_solr_primary_display() {
+  return array(
+    'xquery' => array(
+      'name' => t('XQuery'),
+      'module' => 'islandora_xquery',
+      'file' => 'includes/solr_results.inc',
+      'class' => 'IslandoraSolrResultsXquery',
+      'function' => 'displayResults',
+      'description' => t('Search results for performing an XQuery find/replace operation.'),
+    ),
+  );
+}
