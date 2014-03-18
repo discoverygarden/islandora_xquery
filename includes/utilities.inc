@@ -22,7 +22,8 @@ function islandora_xquery_get_zorba_version($executable_path = NULL) {
     $output = array();
     $command = "$executable_path --version 2>&1";
     exec($command, $output, $ret);
-    // Odd behavior in that the Zorba executable returns 1 on success.
+    // Odd behavior in that the Zorba executable returns 1 on success when
+    // checking for the version number.
     if ($ret == 1 && isset($output[0])) {
       // Example return value "Zorba NoSQL Query Processor, Version: 3.0.0".
       $matches = array();

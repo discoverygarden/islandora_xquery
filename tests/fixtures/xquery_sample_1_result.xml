@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.loc.gov/mods/v3" version="3.5" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd">
+
+    <titleInfo>
+        <title>SOUND AND FURY</title>
+        <subTitle>THE MAKING OF THE PUNDITOCRACY</subTitle>
+    </titleInfo>
+
+    <name type="personal" authorityURI="http://id.loc.gov/authorities/names" valueURI="http://id.loc.gov/authorities/names/n92101908">
+        <namePart>ALTERMAN, ERIC</namePart>
+        <role>
+            <roleTerm type="text">CREATOR</roleTerm>
+        </role>
+    </name>
+
+    <typeOfResource>TEXT</typeOfResource>
+
+    <genre authority="marcgt">BIBLIOGRAPHY</genre>
+
+    <originInfo eventType="publication">
+        <place>
+            <placeTerm authority="marccountry" type="code" authorityURI="http://id.loc.gov/vocabulary/countries" valueURI="http://id.loc.gov/vocabulary/countries/nyu">NYU</placeTerm>
+        </place>
+        <place>
+            <placeTerm type="text">ITHACA, N.Y</placeTerm>
+        </place>
+        <publisher>CORNELL UNIVERSITY PRESS</publisher>
+        <dateIssued>C1999</dateIssued>
+        <dateIssued encoding="marc">1999</dateIssued>
+        <issuance>MONOGRAPHIC</issuance>
+    </originInfo>
+
+    <language>
+        <languageTerm authority="iso639-2b" type="code" authorityURI="http://id.loc.gov/vocabulary/iso639-2" valueURI="http://id.loc.gov/vocabulary/iso639-2/eng">ENG</languageTerm>
+    </language>
+
+    <physicalDescription>
+        <form authority="marcform">PRINT</form>
+        <extent>VII, 322 P. ; 23 CM.</extent>
+    </physicalDescription>
+
+    <note type="statement of responsibility">ERIC ALTERMAN.</note>
+    <note>INCLUDES BIBLIOGRAPHICAL REFERENCES (P. 291-312) AND INDEX.</note>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh85070736">JOURNALISM</topic>
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh00005651">POLITICAL ASPECTS</topic>
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+    </subject>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects">
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh2002011436">POLITICS AND GOVERNMENT</topic>
+        <temporal valueURI="http://id.loc.gov/authorities/subjects/sh2002012476">20TH CENTURY</temporal>
+    </subject>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects" valueURI="http://id.loc.gov/authorities/subjects/sh2008107507">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh85081863">MASS MEDIA</topic>
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh00005651">POLITICAL ASPECTS</topic>
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+    </subject>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects" valueURI="http://id.loc.gov/authorities/subjects/sh2010115992">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh85133490">TELEVISION AND POLITICS</topic>
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+    </subject>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects" valueURI="http://id.loc.gov/authorities/subjects/sh2008109555">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh85106514">PRESS AND POLITICS</topic>
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+    </subject>
+
+    <subject authority="lcsh" authorityURI="http://id.loc.gov/authorities/subjects" valueURI="http://id.loc.gov/authorities/subjects/sh2010115993.html">
+        <topic valueURI="http://id.loc.gov/authorities/subjects/sh2006004518.html">TELEVISION TALK SHOWS</topic>
+        <geographic valueURI="http://id.loc.gov/authorities/names/n78095330">UNITED STATES</geographic>
+    </subject>
+
+    <classification authority="lcc">PN4888.P6 A48 1999</classification>
+    <classification edition="21" authority="ddc">071/.3</classification>
+
+    <identifier type="isbn">0801486394 (PBK. : ACID-FREE, RECYCLED PAPER)</identifier>
+    <identifier type="lccn">99042030</identifier>
+
+    <recordInfo>
+        <descriptionStandard>AACR</descriptionStandard>
+        <recordContentSource>DLC</recordContentSource>
+        <recordCreationDate encoding="marc">990730</recordCreationDate>
+        <recordChangeDate encoding="iso8601">20000406144503.0</recordChangeDate>
+        <recordIdentifier>11761548</recordIdentifier>
+        <recordOrigin>CONVERTED FROM MARCXML TO MODS VERSION 3.4 USING MARC21SLIM2MODS3-4.XSL (REVISION 1.74), VALUEURIS AND AUTHORITYURIS ADDED BY HAND 20120123</recordOrigin>
+    </recordInfo>
+</mods>
