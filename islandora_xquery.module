@@ -3,6 +3,8 @@
 /**
  * @file
  * Defines all the hooks this module implements.
+ * @todo
+ *   Handle "the i18n_string integration fun".
  */
 
 /**

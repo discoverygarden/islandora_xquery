@@ -89,9 +89,9 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
     $form['xquery_controls'] = array(
       'xquery' => array(
         '#type' => 'select',
-        '#title' => 'XQuery',
+        '#title' => t('XQuery'),
         '#required' => TRUE,
-        '#description' => 'Select the XQuery to run.',
+        '#description' => t('Select the XQuery to run.'),
         '#options' => $xquery_options,
         '#ajax' => array(
           'wrapper' => 'xquery_inputs',
@@ -105,18 +105,18 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
       ),
       'dsids' => array(
         '#type' => 'textfield',
-        '#title' => 'DSIDs',
-        '#description' => 'A comma seperated list of DSIDs to run against.',
+        '#title' => t('DSIDs'),
+        '#description' => t('A comma seperated list of DSIDs to run against.'),
         '#size' => 10,
         '#required' => TRUE,
       ),
-      'submit' => array(
+      'submit_selected' => array(
         '#type' => 'submit',
-        '#value' => 'Run Selected',
+        '#value' => t('Run Selected'),
       ),
       'submit_all' => array(
         '#type' => 'submit',
-        '#value' => 'Run All',
+        '#value' => t('Run All'),
       ),
     );
     if (isset($form_state['values']['xquery_controls']['xquery'])) {
@@ -126,8 +126,8 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
           '#rows' => 10,
           '#cols' => 30,
           '#required' => TRUE,
-          '#title' => 'Query',
-          '#description' => 'Enter a custom XQuery to run.',
+          '#title' => t('Query'),
+          '#description' => t('Enter a custom XQuery to run.'),
         );
       }
       else {
@@ -138,10 +138,9 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
         foreach ($tokens as $token) {
           $form['xquery_controls']['xquery_inputs']['tokens'][$token['token_name']] = array(
             '#type' => 'textfield',
-            '#default_value' => check_plain($token['token_default']),
+            '#default_value' => $token['token_default'],
             '#title' => check_plain($token['token_name']),
             '#description' => check_plain($token['token_description']),
-            '#required' => TRUE,
           );
         }
       }
@@ -168,7 +167,7 @@ function islandora_xquery_xquery_inputs_ajax($form, $form_state) {
 function islandora_xquery_results_form_submit(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/db');
   // Get objects to work on.
-  if ($form_state['clicked_button']['#value'] == 'Run All') {
+  if (end($form_state['clicked_button']['#parents']) == 'submit_all') {
     $object_range = $form_state['build_info']['args'][1];
   }
   else {
@@ -192,8 +191,8 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
   }
   $tokens = array();
   $replacements = array();
-  if (isset($form_state['values']['xquery_controls']['tokens'])) {
-    foreach ($form_state['values']['xquery_controls']['tokens'] as $token => $replacement) {
+  if (isset($form_state['values']['xquery_controls']['xquery_inputs']['tokens'])) {
+    foreach ($form_state['values']['xquery_controls']['xquery_inputs']['tokens'] as $token => $replacement) {
       $tokens[] = $token;
       $replacements[] = $replacement;
     }
@@ -201,7 +200,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
   $xquery = str_replace($tokens, $replacements, $xquery);
   // Set batch.
   batch_set(array(
-    'title' => 'Running XQuery',
+    'title' => t('Running XQuery'),
     'finished' => 'islandora_xquery_run_query_batch_finished',
     'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaining @estimate.'),
     'error_message' => t('An error has occurred.'),
@@ -232,16 +231,17 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['object_range'] = $object_range;
     $context['sandbox']['total'] = islandora_xquery_run_query_batch_operation_get_total($context);
+    // Avoid divide by zero.
+    if ($context['sandbox']['total'] == 0) {
+      $context['finished'] = 1;
+      return;
+    }
   }
-  $current_object = islandora_xquery_run_query_batch_operation_get_pid($context);
+  $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
   // @todo Do operation here.
 
   $context['sandbox']['progress']++;
-  if ($context['sandbox']['progress'] < $context['sandbox']['total']) {
-    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
-    return FALSE;
-  }
-  return TRUE;
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
 }
 
 /**
@@ -291,9 +291,9 @@ function islandora_xquery_run_query_batch_operation_get_total(&$context) {
  * @return AbstractObject
  *   The current object to work on.
  */
-function islandora_xquery_run_query_batch_operation_get_pid(&$context) {
+function islandora_xquery_run_query_batch_operation_get_object(&$context) {
   if (is_array($context['sandbox']['object_range'])) {
-    return array_pop($context['sandbox']['object_range']);
+    return islandora_object_load(array_pop($context['sandbox']['object_range']));
   }
   // Init search.
   if (!isset($context['sandbox']['search_settings'])) {
