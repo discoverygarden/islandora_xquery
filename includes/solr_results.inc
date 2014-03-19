@@ -84,7 +84,7 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
     foreach ($associations as $association) {
       $xquery_options[$association['machine_name']] = $association['template_name'];
     }
-    $xquery_options['Custom'] = 'Custom';
+    $xquery_options['Custom'] = t('Custom');
 
     $form['xquery_controls'] = array(
       'xquery' => array(
