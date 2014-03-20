@@ -171,12 +171,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
     $object_range = $form_state['build_info']['args'][1];
   }
   else {
-    $object_range = array();
-    foreach ($form_state['values']['islandora_xquery_table'] as $pid => $checked) {
-      if ($checked) {
-        $object_range[] = $pid;
-      }
-    }
+    $object_range = array_keys(array_filter($form_state['values']['islandora_xquery_table']));
   }
   // Get DSIDs to work on.
   $dsids = explode(',', $form_state['values']['xquery_controls']['dsids']);
