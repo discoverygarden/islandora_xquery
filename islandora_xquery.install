@@ -3,6 +3,8 @@
 /**
  * @file
  * Defines the install and uninstall hooks for this module.
+ * @todo
+ *   Factor out association_id and use the machine_name as key.
  */
 
 /**

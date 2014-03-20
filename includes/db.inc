@@ -100,6 +100,30 @@ function islandora_xquery_get_associations() {
 /**
  * Get all fields in the given template.
  *
+ * @param int $machine_name
+ *   The machine name for the template for which to get the list of tokens.
+ *
+ * @return array
+ *   An associative array of associative arrays, representing tokens
+ *   mapped to the details about the given tokens, including:
+ *   - association_id
+ *   - token_name
+ *   - token_description
+ *   - token_default
+ */
+function islandora_xquery_get_tokens_from_machine_name($machine_name) {
+  $query = db_select('islandora_xquery_tokens', 't')
+    ->fields('t', array());
+  $association_alias = $query->join('islandora_xquery_associations', 'a', 'a.association_id = t.association_id');
+
+  return $query->condition("$association_alias.machine_name", $machine_name)
+    ->execute()
+    ->fetchAllAssoc('token_name', PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get all fields in the given template.
+ *
  * @param int $association_id
  *   The ID for the template for which to get the list of tokens.
  *
@@ -115,6 +139,22 @@ function islandora_xquery_get_tokens($association_id) {
   $result = db_query('SELECT * FROM {islandora_xquery_tokens} WHERE association_id = :association_id', array(':association_id' => $association_id));
   $tokens = $result->fetchAllAssoc('token_name', PDO::FETCH_ASSOC);
   return $tokens;
+}
+
+/**
+ * Gets the XQuery value for a template.
+ *
+ * @param string $machine_name
+ *   The machine name for the association to get the XQuery for.
+ */
+function islandora_xquery_get_xquery_from_machine_name($machine_name) {
+  $query = db_select('islandora_xquery_xquery', 'x')
+    ->fields('x', array('xquery'));
+  $association_alias = $query->join('islandora_xquery_associations', 'a', 'a.association_id = x.association_id');
+
+  return $query->condition("$association_alias.machine_name", $machine_name)
+    ->execute()
+    ->fetchField();
 }
 
 /**
