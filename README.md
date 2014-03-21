@@ -20,9 +20,7 @@ To install Zorba follow the instructions [here](http://www.zorba.io/download)
 
 ## Configuration
 
-Set the paths for `example` and `module` in Administration » Islandora » MODULE (admin/islandora/module).
-
-Include a screenshot of configuration page.
+Templates can be added for re-use at /admin/islandora/xquery/manage.
 
 ## Troubleshooting/Issues
 
@@ -30,12 +28,6 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 * [Islandora Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora)
 * [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
-
-## FAQ
-
-Q. Is this normal?
-
-A. Yes. This is normal. Why ...
 
 ## Maintainers/Sponsors
 Current maintainers:
