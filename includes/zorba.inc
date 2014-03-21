@@ -13,20 +13,32 @@ use ArrayAccess,
 /**
  * Class Options
  *
- * Models optionsOptions for the Zorba CLI.
+ * Models options for the Zorba CLI.
  *
  * @package Islandora\Zorba
  */
-class Options implements \ArrayAccess {
+class Options implements ArrayAccess {
 
   /**
    * Defines the possible options and what values are acceptable.
    *
-   * Some assumptions are made, about how each option will be serialized and
-   * validated given it's type. Options can give explicit validation /
-   * serialization functions though.
+   * Each array key represents a valid option for the Zorba CLI, its value is
+   * must be an associative array with the following keys:
+   *  - type: Expected to be either 'boolean', 'string', 'integer', 'select',
+   *    the type defines default validation and serialization functions for the
+   *    option. Required.
+   *  - multiple: If present the option will be stored as an array and the user
+   *    will be add multiple values for the option. Optional.
+   *  - options: An array of values that the option is limited to, this field is
+   *    required when the type is 'select'. For other types it has no affect.
+   *  - validate: A function that takes an option name and value and returns a
+   *    boolean value indicating if that option value pair is valid.
+   *  - serialize: A function that takes an option name and value and returns
+   *    the string representation of that option to pass to the Zorba CLI.
    *
-   * If a option is marked as 'multiple' it will be stored as any array. Setting
+   * Some assumptions are made, about how each option will be serialized and
+   * validated based on it's type. Options can give explicit validation /
+   * serialization functions though.
    *
    * @var array
    */
@@ -108,16 +120,10 @@ class Options implements \ArrayAccess {
     'multiple' => array(
       'type' => 'integer',
     ),
-    // Query test or file URI (file://...)
+    // Query specified as file path to a file containing a valid Zorba XQuery.
     'query' => array(
       'type' => 'string',
       'multiple' => TRUE,
-    ),
-    // Treat all -q arguments as file paths instead of URIs or inline
-    // queries. This option is deprecated and will be defaulted to true in the
-    // future, so any entry in the command line is going to be treated as files.
-    'as-files' => array(
-      'type' => 'boolean',
     ),
     // Provide the value for a variable given a file
     // (name=file) or a value (name:=value)
@@ -253,7 +259,7 @@ class Options implements \ArrayAccess {
   protected $options = array();
 
   /**
-   * Defines a default option definitions based on type.
+   * Defines default option definitions based on the options type.
    *
    * The option definitions can optionally overwrite these defaults.
    *
@@ -361,7 +367,7 @@ class Options implements \ArrayAccess {
   }
 
   /**
-   * Serialize the given option and it's value to a string.
+   * Serialize the given option and it's value to a string to pass to the CLI.
    *
    * @param string $option
    *   The option to serialize.
@@ -407,7 +413,7 @@ class Options implements \ArrayAccess {
 
   /**
    * This is implemented for multivalued options as offsetGet does not return by
-   * reference, which is need for multidimensional arrays.
+   * reference, which is needed for multidimensional arrays.
    *
    * @see ArrayAccess::offsetGet
    */
@@ -439,7 +445,7 @@ class Options implements \ArrayAccess {
 
   /**
    * We don't allow for indirect access to elements as our min version of PHP is
-   * 5.3.3, and indirect access was not added until 5.3.4. Please use the __set
+   * 5.3.3, and indirect access was not added until 5.3.4. Please use the __get
    * to do indirect access on options.
    * @see http://php.net/manual/en/arrayaccess.offsetget.php
    *
@@ -563,7 +569,14 @@ function execute(Options $options) {
   if (is_executable($executable_path)) {
     $ret = -1;
     $output = array();
-    $command = "$executable_path {$options}";
+    // From the Zorba 3.0 documentation:
+    // --as-files treats all -q arguments as file paths instead of URIs or
+    // inline queries. This option is deprecated and will be defaulted to true
+    // in the future, so any entry in the command line is going to be treated as
+    // files.
+    // Therefore for future compatibility we assume that --as-files will always
+    // be enabled.
+    $command = "$executable_path --as-files {$options}";
     exec($command, $output, $ret);
     if ($ret == 0) {
       return $output;
