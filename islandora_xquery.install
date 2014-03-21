@@ -137,16 +137,7 @@ function islandora_xquery_requirements($phase) {
  * Implements hook_install().
  */
 function islandora_xquery_install() {
-  $os = php_uname('s');
-  $default_zorba_locations = array(
-    // OSX has a default here but isn't considered to be fully supported.
-    'Darwin' => '/opt/local/bin/zorba',
-    'Linux'  => ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION,
-  );
-  $default_zorba_location = isset($default_zorba_locations[$os]) ?
-      $default_zorba_locations[$os] :
-      ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION;
-  variable_set('islandora_xquery_zorba', $default_zorba_location);
+  variable_set('islandora_xquery_zorba', ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION);
 }
 
 /**
