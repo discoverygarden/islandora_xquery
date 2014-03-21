@@ -16,7 +16,7 @@
  *   The version of the zorba executable if successful, FALSE otherwise.
  */
 function islandora_xquery_get_zorba_version($executable_path = NULL) {
-  $executable_path = $executable_path ? $executable_path : variable_get('islandora_xquery_zorba', '/usr/bin/zorba');
+  $executable_path = $executable_path ? $executable_path : variable_get('islandora_xquery_zorba', ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION);
   if (is_executable($executable_path)) {
     $ret = -1;
     $output = array();

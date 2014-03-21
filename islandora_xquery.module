@@ -20,8 +20,8 @@ function islandora_xquery_menu() {
     'description' => 'Configure templates for Islandora XQuery',
     'access arguments' => array('administer islandora_xquery'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_xquery_template_overview_form'),
-    'file' => 'includes/overview.inc',
+    'page arguments' => array('islandora_xquery_template_admin_form'),
+    'file' => 'includes/admin.form.inc',
   );
   $items['admin/islandora/xquery/manage/template/%'] = array(
     'title' => 'Manage Template',
