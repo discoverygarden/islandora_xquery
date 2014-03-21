@@ -134,13 +134,6 @@ function islandora_xquery_requirements($phase) {
 }
 
 /**
- * Implements hook_install().
- */
-function islandora_xquery_install() {
-  variable_set('islandora_xquery_zorba', ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION);
-}
-
-/**
  * Implements hook_uninstall().
  */
 function islandora_xquery_uninstall() {
