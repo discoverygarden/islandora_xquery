@@ -91,4 +91,54 @@ function islandora_xquery_schema() {
   );
   return $schema;
 }
-// @todo Add function to test for Zorba install.
+
+/**
+ * Implements hook_requirements().
+ */
+function islandora_xquery_requirements($phase) {
+  module_load_include('inc', 'islandora_xquery', 'includes/utilities');
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+  switch ($phase) {
+    case 'runtime':
+      $zorba_version = islandora_xquery_get_zorba_version();
+      if ($zorba_version === FALSE) {
+        $requirements['zorba'] = array(
+          'title' => $t('Zorba'),
+          'value' => $t('Zorba could not be found. Islandora XQuery requires Zorba %version.', array('%version' => ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION)),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else if (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
+        $requirements['zorba'] = array(
+          'title' => $t('Zorba'),
+          'value' => $t('Islandora XQuery requires Zorba %required_version. Version %version is currently installed.', array(
+            '%required_version' => ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION,
+            '%version' => $zorba_version,
+            )
+          ),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else {
+        $requirements['zorba'] = array(
+          'title' => $t('Zorba'),
+          'value' => $zorba_version,
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function islandora_xquery_uninstall() {
+  $variables = array(
+    'islandora_xquery_zorba',
+  );
+  array_walk($variables, 'variable_del');
+}

@@ -27,12 +27,155 @@ class XQueryUnitTestCase extends DrupalUnitTestCase {
    */
   public function setUp() {
     parent::setUp('islandora_xquery');
+    module_load_include('inc', 'islandora_xquery', 'includes/utilities');
+    module_load_include('inc', 'islandora_xquery', 'includes/zorba');
+    $this->fixtures_path = drupal_get_path('module', 'islandora_xquery') . '/tests/fixtures';
   }
 
   /**
-   * Test running XQuery against fixtures.
+   * Test Zorba's existence.
    */
-  public function testXQuery() {
+  public function testXQueryExistence() {
+    $version = islandora_xquery_get_zorba_version();
+    if ($version === FALSE || version_compare(ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, $version, '!=')) {
+      $this->fail('Valid version of Zorba was not found.');
+      return;
+    }
+    else {
+      $this->pass('Valid version of Zorba was found.');
+    }
+  }
+
+  /**
+   * Test Empty Options Construction / Serialization.
+   */
+  public function testZorbaOptionsSerializationEmpty() {
+    $options = new Islandora\Zorba\Options();
+    $value = (string) $options;
+    $this->assertTRUE(empty($value), 'No options specified results in an empty string.');
+  }
+
+  /**
+   * Test Adding / Removing boolean Options.
+   */
+  public function testZorbaBooleanOptions() {
+    // Test basic values.
+    $options = new Islandora\Zorba\Options(array(
+      'print-query' => TRUE,
+    ));
+    $value = (string) $options;
+    $this->assertTRUE($value == "--print-query", 'Boolean option pass to constructor serialized correctly.');
+    $options->disable('print-query');
+    $value = (string) $options;
+    $this->assertTRUE(empty($value), 'Disable removed boolean option.');
+  }
+
+  /**
+   * Test Adding / Removing multivalued Options.
+   */
+  public function testZorbaOptionsConstruction() {
+    // Test basic values.
+    $options = new Islandora\Zorba\Options();
+    $options['uri-path'] = array('path/1', 'path/2');
+    $value = (string) $options;
+    $this->assertTRUE($value == '--uri-path "path/1" --uri-path "path/2"', 'Multivalued options serialize correctly.');
+    $options->{'uri-path'}[] = 'path/3';
+    $value = (string) $options;
+    $this->assertTRUE($value == '--uri-path "path/1" --uri-path "path/2" --uri-path "path/3"', 'Can update Multivalued options using __set.');
+    unset($options['uri-path']);
+    $value = (string) $options;
+    $this->assertTRUE(empty($value), 'Disable removed multi-valued option.');
+  }
+
+  /**
+   * Test a very simple query that requires no context-item.
+   */
+  public function testZorbaExecuteSimpleQuery() {
+    // Test Inline Query no Context.
+    $options = new Islandora\Zorba\Options(array(
+      'query' => drupal_realpath($this->fixtures_path . '/xquery_simple_query.xq'),
+    ));
+    $options->enable('omit-xml-declaration');
+    $output = Islandora\Zorba\execute($options);
+    $this->assertEqual('2', trim(implode('', $output)), 'Inline query returned expected result');
+  }
+
+  /**
+   * Test a XQuery that will uppercase all the text() content of a document.
+   */
+  public function testZorbaExecuteUppercaseQuery() {
+    // Test File Query with Context.
+    $sample_document_path = drupal_realpath($this->fixtures_path . '/mods_sample.xml');
+    $sample_query_path = drupal_realpath($this->fixtures_path . '/xquery_sample_1.xq');
+    $tmp_file_path = drupal_tempnam('temporary://', 'xq');
+    $options = new Islandora\Zorba\Options(array(
+      'context-item' => $sample_document_path,
+      'output-file' => drupal_realpath($tmp_file_path),
+      'query' => array(
+        $sample_query_path,
+      ),
+    ));
+    Islandora\Zorba\execute($options);
+    $expected = new DOMDocument();
+    $expected->preserveWhiteSpace = FALSE;
+    $expected->formatOutput = TRUE;
+    $expected->load(drupal_realpath($this->fixtures_path . '/xquery_sample_1_result.xml'));
+    $expected->normalizeDocument();
+    $output = new DOMDocument();
+    $output->preserveWhiteSpace = FALSE;
+    $output->formatOutput = TRUE;
+    $output->load($tmp_file_path);
+    $output->normalizeDocument();
+    $this->assertTRUE($expected->C14N() == $output->C14N(), 'XQuery #1 output matches expectations');
+    drupal_unlink($tmp_file_path);
+  }
+
+  /**
+   * Test compiling a query then executing it.
+   */
+  public function testZorbaCompileExecutePlan() {
+    // Test compiling the plan.
+    $tmp_file_path = drupal_tempnam('temporary://', 'xq');
+    $options = new Islandora\Zorba\Options(array(
+      'output-file' => drupal_realpath($tmp_file_path),
+      'compile-plan' => TRUE,
+      'omit-xml-declaration' => TRUE,
+      'query' => array(
+        drupal_realpath($this->fixtures_path . '/xquery_simple_query.xq'),
+      ),
+    ));
+    Islandora\Zorba\execute($options);
+    $this->assertTRUE(filesize($tmp_file_path) > 0, 'Zorba generated compiled query');
+    unset($options['output-file']);
+    $options->disable('compile-plan');
+    // Test executing the plan.
+    $options->enable('execute-plan');
+    $options['query'] = drupal_realpath($tmp_file_path);
+    $output = Islandora\Zorba\execute($options);
+    $this->assertEqual('2', trim(implode('', $output)), 'Compiled query returned expected result');
+    drupal_unlink($tmp_file_path);
+  }
+
+  /**
+   * Test validating a query by parsing it.
+   */
+  public function testZorbaValidateQuery() {
+    // Test XQuery validation via --parse-only
+    $options = new Islandora\Zorba\Options(array(
+      'query' => array(
+        drupal_realpath($this->fixtures_path . '/xquery_simple_query.xq'),
+      ),
+    ));
+    $valid = Islandora\Zorba\valid($options);
+    $this->assertTRUE($valid, 'Valid query is valid.');
+    // Test Invalid Query.
+    $options = new Islandora\Zorba\Options(array(
+      'query' => array(
+        drupal_realpath($this->fixtures_path . '/xquery_invalid_query.xq'),
+      ),
+    ));
+    $valid = Islandora\Zorba\valid($options);
+    $this->assertFALSE($valid, 'Invalid query is invalid.');
   }
 
 }

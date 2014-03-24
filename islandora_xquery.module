@@ -7,6 +7,9 @@
  *   Handle "the i18n_string integration fun".
  */
 
+define('ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION', '3.0.0');
+define('ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION', '/usr/bin/zorba');
+
 /**
  * Implements hook_menu().
  */
@@ -17,8 +20,8 @@ function islandora_xquery_menu() {
     'description' => 'Configure templates for Islandora XQuery',
     'access arguments' => array('administer islandora_xquery'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_xquery_template_overview_form'),
-    'file' => 'includes/overview.inc',
+    'page arguments' => array('islandora_xquery_admin_form'),
+    'file' => 'includes/admin.form.inc',
   );
   $items['admin/islandora/xquery/manage/template/%'] = array(
     'title' => 'Manage Template',

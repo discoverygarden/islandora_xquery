@@ -16,7 +16,7 @@ This module requires the following modules/libraries:
 
 Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
 
-For Zorba...
+[Install Zorba](http://www.zorba.io/download)
 
 ## Configuration
 
