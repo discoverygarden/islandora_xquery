@@ -233,7 +233,12 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     }
   }
   $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
-  // @todo Do operation here.
+
+  foreach ($current_object as $datastream) {
+    if (array_intersect($dsids, array($datastream->id))) {
+        islandora_xquery_run_query_batch_operation_preview_find_replace_datastream();
+    }
+  }
 
   $context['sandbox']['progress']++;
   $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
@@ -317,4 +322,8 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
     $sandbox['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
   }
   return islandora_object_load($pid);
+}
+
+function islandora_xquery_run_query_batch_operation_preview_find_replace_datastream() {
+
 }

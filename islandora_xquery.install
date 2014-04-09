@@ -89,6 +89,58 @@ function islandora_xquery_schema() {
     ),
     'primary key' => array('association_id', 'token_name'),
   );
+  $schema['islandora_xquery_previews'] = array(
+    'description' => "Table that stores previews of the xquery results for viewing before user confirmation.",
+    'fields' => array(
+      'batch_id' => array(
+        'description' => 'Unique ID given to each batch find/replace operation.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'description' => "PID of object to run find/replace.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'dsid' => array(
+        'description' => "ID of datastream to run find/replace on.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'preview' => array(
+        'description' => "File path to preview of find/replace results.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'diff' => array(
+        'description' => "Human readable diff of original datastream and results after find/replace.",
+        'type' => 'blob',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary_key' => array('batch_id'),
+    'indexes' => array('index_pid' => array('pid'), 'index_dsid' => array('dsid')),
+  );
+  $schema['islandora_xquery_batches'] = array(
+    'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up previews.",
+    'fields' => array(
+      'batch_id' => array(
+        'description' => 'Unique ID given to each batch find/replace operation.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'batch_timestamp' => array(
+        'description' => "Creation time of the find/replace batch.",
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary_key' => array('batch_id'),
+    'indexes' => array('index_batch_timestamp' => array('batch_timestamp')),
+  );
   return $schema;
 }
 
