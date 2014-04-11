@@ -93,7 +93,7 @@ function islandora_xquery_schema() {
     'description' => "Table that stores previews of the xquery results for viewing before user confirmation.",
     'fields' => array(
       'batch_id' => array(
-        'description' => 'Unique ID given to each batch find/replace operation.',
+        'description' => 'ID of batch running the find/replace operation.',
         'type' => 'int',
         'not null' => TRUE,
       ),
@@ -110,36 +110,42 @@ function islandora_xquery_schema() {
         'not null' => TRUE,
       ),
       'preview' => array(
-        'description' => "File path to preview of find/replace results.",
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'diff' => array(
-        'description' => "Human readable diff of original datastream and results after find/replace.",
+        'description' => "Preview of find/replace results.",
         'type' => 'blob',
         'not null' => TRUE,
       ),
     ),
     'primary_key' => array('batch_id'),
-    'indexes' => array('index_pid' => array('pid'), 'index_dsid' => array('dsid')),
+    'indexes' => array('index_pid' => array('pid'),
+                       'index_dsid' => array('dsid')),
   );
   $schema['islandora_xquery_batches'] = array(
     'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up previews.",
     'fields' => array(
       'batch_id' => array(
-        'description' => 'Unique ID given to each batch find/replace operation.',
+        'description' => 'ID of batch running the find/replace operation.',
         'type' => 'int',
         'not null' => TRUE,
       ),
-      'batch_timestamp' => array(
+      'batch_created' => array(
         'description' => "Creation time of the find/replace batch.",
         'type' => 'int',
         'not null' => TRUE,
       ),
+      'batch_ended' => array(
+        'description' => "End time of the find/replace batch.",
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'xquery' => array(
+        'description' => 'Xquery being applied in this batch',
+        'type' => 'blob',
+        'not null' => TRUE,
+      ),
     ),
     'primary_key' => array('batch_id'),
-    'indexes' => array('index_batch_timestamp' => array('batch_timestamp')),
+    'indexes' => array('index_batch_created' => array('batch_created'), 
+                       'index_batch_ended' => array('batch_ended')),
   );
   return $schema;
 }
