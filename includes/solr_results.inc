@@ -259,6 +259,7 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     }
   }
 
+  // Run the find/replace on all applicable datastreams.
   $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
 
   foreach ($current_object as $datastream) {
@@ -267,6 +268,7 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     }
   }
 
+  // Update progress.
   $context['sandbox']['progress']++;
   $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
 }
@@ -287,7 +289,7 @@ function islandora_xquery_run_query_batch_finished($success, $results, $operatio
   $batch_update_query = db_update('islandora_xquery_batches')->fields(array('batch_ended' => time()))->condition('batch_id', $results['batch_id'], '=')->execute();
 
   // Redirect to the preview results screen.
-
+  drupal_goto('islandora/xquery/preview/' . $results['batch_id']);
 }
 
 /**
@@ -398,17 +400,19 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
   $options = new Islandora\Zorba\Options(array(
     'context-item' => $tmp_ds_path,
     'output-file' => $tmp_output_path,
+    'trailing-nl' => TRUE,
     'query' => array(
       $tmp_query_path,
     ),
+    'indent' => TRUE,
   ));
 
   Islandora\Zorba\execute($options);
 
   // Pull out the results and diff them.
-  $result_string = file_get_contents($tmp_output_path);
+
   $diff = new Horde_Text_Diff('auto', array(file($tmp_ds_path), file($tmp_output_path)));
-  $renderer = new Horde_Text_Diff_Renderer_Unified();
+  $renderer = new Horde_Text_Diff_Renderer_Inline();
 
   // Insert a record into the preview table.
   $preview_insert_query = $context['results']['preview_insert_query'];
@@ -422,6 +426,6 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
 
   // Clean up the temp files.
   drupal_unlink($tmp_ds_uri);
-  drupal_unlink($tmp_query_uri);
   drupal_unlink($tmp_output_uri);
+  drupal_unlink($tmp_query_uri);
 }
