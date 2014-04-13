@@ -372,15 +372,6 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
  *   The context of the current batch.
  */
 function islandora_xquery_run_query_batch_operation_generate_preview($object, $datastream, $xquery, $context) {
-  // Do some autoloader magic to get all the dependencies of the diff util.
-  require_once 'Horde/Autoloader.php';
-  require_once 'Horde/Autoloader/ClassPathMapper.php';
-  require_once 'Horde/Autoloader/ClassPathMapper/Default.php';
-
-  $autoloader = new Horde_Autoloader();
-  $autoloader->addClassPathMapper(new Horde_Autoloader_ClassPathMapper_Default('/usr/share/php'));
-  $autoloader->registerAutoloader();
-
   module_load_include('inc', 'islandora_xquery', 'includes/zorba');
 
   // Make temp files for zorba to work on.
@@ -393,6 +384,9 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
   $tmp_output_uri = drupal_tempnam('temporary://', 'out');
   $tmp_output_path = drupal_realpath($tmp_output_uri);
 
+  $tmp_diff_uri = drupal_tempnam('temporary://', 'diff');
+  $tmp_diff_path = drupal_realpath($tmp_diff_uri);
+
   // Fill the files and execute zorba.
   file_put_contents($tmp_ds_path, $datastream->getContent());
   file_put_contents($tmp_query_path, $xquery);
@@ -400,19 +394,17 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
   $options = new Islandora\Zorba\Options(array(
     'context-item' => $tmp_ds_path,
     'output-file' => $tmp_output_path,
-    'trailing-nl' => TRUE,
     'query' => array(
       $tmp_query_path,
     ),
     'indent' => TRUE,
+    'serialize-html' => TRUE,
   ));
 
   Islandora\Zorba\execute($options);
 
   // Pull out the results and diff them.
-
-  $diff = new Horde_Text_Diff('auto', array(file($tmp_ds_path), file($tmp_output_path)));
-  $renderer = new Horde_Text_Diff_Renderer_Inline();
+  xdiff_file_diff($tmp_ds_path, $tmp_output_path, $tmp_diff_path, 3);
 
   // Insert a record into the preview table.
   $preview_insert_query = $context['results']['preview_insert_query'];
@@ -421,11 +413,12 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
     $batch_id,
     $object->id,
     $datastream->id,
-    $renderer->render($diff),
+    file_get_contents($tmp_diff_path),
   ));
 
   // Clean up the temp files.
   drupal_unlink($tmp_ds_uri);
   drupal_unlink($tmp_output_uri);
   drupal_unlink($tmp_query_uri);
+  drupal_unlink($tmp_diff_uri);
 }

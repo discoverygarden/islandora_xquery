@@ -42,12 +42,20 @@ function islandora_xquery_menu() {
     'file' => 'includes/delete.inc',
   );
   $items['islandora/xquery/preview/%'] = array(
-    'title' => 'Query Result Preview',
+    'title' => 'Query Preview',
     'description' => "Provides a preview of xquery results before commiting them to Fedora.",
     'access callback' => TRUE,
     'page callback' => 'islandora_xquery_preview_results',
     'page arguments' => array(3),
     'file' => 'includes/preview.inc',
+  );
+  $items['islandora/xquery/preview/%/apply'] = array(
+    'title' => 'Apply Query',
+    'description' => "Applies results of an xquery and commits them to Fedora.",
+    'access callback' => TRUE,
+    'page callback' => 'islandora_xquery_apply_results',
+    'page arguments' => array(3),
+    'file' => 'includes/apply.inc',
   );
   return $items;
 }
@@ -61,7 +69,30 @@ function islandora_xquery_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'template' => 'islandora-xquery-preview',
       'variables' => array(
-        'results' => NULL,
+        'result' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function islandora_xquery_libraries_info() {
+  return array(
+    'geshi' => array(
+      'title' => 'GeSHi - Generic Syntax Highlighter for PHP',
+      'vendor url' => 'http://sourceforge.net/projects/geshi',
+      'download url' => 'http://sourceforge.net/projects/geshi/files/geshi',
+      'version arguments' => array(
+        'file' => 'geshi.php',
+        'pattern' => "/define\('GESHI_VERSION', '(.*)'\);/",
+        'lines' => 50,
+      ),
+      'files' => array(
+        'php' => array(
+          'geshi.php',
+        ),
       ),
     ),
   );
