@@ -173,7 +173,7 @@ function islandora_xquery_apply_query_batch_update_progress($result, $status, &$
  * The batch 'finished' callback.
  */
 function islandora_xquery_apply_query_batch_finished($success, $results, $operations) {
-  module_load_include('inc', 'islandora_xquery', 'includes/cancel.inc');
+  module_load_include('inc', 'islandora_xquery', 'includes/cancel');
 
   if (!$success) {
     $error_operation = reset($operations);

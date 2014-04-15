@@ -19,6 +19,7 @@ function islandora_xquery_cancel_results($batch_id) {
     ->execute()
     ->fetchField();
 
+  // Clear out the db.
   db_delete('islandora_xquery_previews')
     ->condition('batch_id', $batch_id, '=')
     ->execute();
@@ -27,5 +28,6 @@ function islandora_xquery_cancel_results($batch_id) {
     ->condition('batch_id', $batch_id, '=')
     ->execute();
 
+  // Redirect.
   drupal_goto($redirect);
 }
