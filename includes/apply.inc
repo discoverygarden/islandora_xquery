@@ -111,7 +111,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
 
   // Exit early if object fails to load from Fedora.
   if (!$object) {
-    islandora_xquery_apply_query_batch_update_progress($result, 'NO OBJECT', $context);
+    islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_OBJECT_LOAD_FAIL, $context);
     return;
   }
 
@@ -119,7 +119,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
 
   // Exit early if datastream does not exist.
   if (!$datastream) {
-    islandora_xquery_apply_query_batch_update_progress($result, 'NO DATASTREAM', $context);
+    islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_DATASTREAM_LOAD_FAIL, $context);
     return;
   }
 
@@ -130,7 +130,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
 
   // Exit early if patch fails.
   if (!$new) {
-    islandora_xquery_apply_query_batch_update_progress($result, 'PATCH FAILED', $context);
+    islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_PATCH_FAIL, $context);
     return;
   }
 
@@ -139,12 +139,12 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
     $datastream->setContentFromString($new);
   }
   catch (Exception $e) {
-    islandora_xquery_apply_query_batch_update_progress($result, 'DATASTREM UPDATE FAILURE', $context);
+    islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_DATSTREAM_UPDATE_FAIL, $context);
     throw $e;
   }
 
   // Success!
-  islandora_xquery_apply_query_batch_update_progress($result, 'APPLIED', $context);
+  islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_APPLIED, $context);
 }
 
 /**
