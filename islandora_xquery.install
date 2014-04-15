@@ -92,6 +92,11 @@ function islandora_xquery_schema() {
   $schema['islandora_xquery_previews'] = array(
     'description' => "Table that stores previews of the xquery results for viewing before user confirmation.",
     'fields' => array(
+      'id' => array(
+        'description' => "Unique ID",
+        'type' => 'serial',
+        'unsigned' => TRUE,
+      ),
       'batch_id' => array(
         'description' => 'ID of batch running the find/replace operation.',
         'type' => 'int',
@@ -114,10 +119,21 @@ function islandora_xquery_schema() {
         'type' => 'blob',
         'not null' => TRUE,
       ),
+      'status' => array(
+        'description' => 'Status of find/replace.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'PENDING',
+      ),
     ),
-    'primary_key' => array('batch_id'),
-    'indexes' => array('index_pid' => array('pid'),
-                       'index_dsid' => array('dsid')),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'index_batch_id' => array('batch_id'),
+      'index_pid' => array('pid'),
+      'index_dsid' => array('dsid'),
+      'index_status' => array('status'),
+    ),
   );
   $schema['islandora_xquery_batches'] = array(
     'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up previews.",
@@ -142,10 +158,18 @@ function islandora_xquery_schema() {
         'type' => 'blob',
         'not null' => TRUE,
       ),
+      'redirect' => array(
+        'description' => 'Where to go when the process is finished.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
     ),
     'primary_key' => array('batch_id'),
-    'indexes' => array('index_batch_created' => array('batch_created'), 
-                       'index_batch_ended' => array('batch_ended')),
+    'indexes' => array(
+      'index_batch_created' => array('batch_created'),
+      'index_batch_ended' => array('batch_ended'),
+    ),
   );
   return $schema;
 }
@@ -168,7 +192,7 @@ function islandora_xquery_requirements($phase) {
           'severity' => REQUIREMENT_ERROR,
         );
       }
-      else if (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
+      elseif (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
         $requirements['zorba'] = array(
           'title' => $t('Zorba'),
           'value' => $t('Islandora XQuery requires Zorba %required_version. Version %version is currently installed.', array(

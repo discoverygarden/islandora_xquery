@@ -57,6 +57,14 @@ function islandora_xquery_menu() {
     'page arguments' => array(3),
     'file' => 'includes/apply.inc',
   );
+  $items['islandora/xquery/preview/%/cancel'] = array(
+    'title' => 'Apply Query',
+    'description' => "Cancels an xquery find/replace operation.",
+    'access callback' => TRUE,
+    'page callback' => 'islandora_xquery_cancel_results',
+    'page arguments' => array(3),
+    'file' => 'includes/cancel.inc',
+  );
   return $items;
 }
 
@@ -69,7 +77,8 @@ function islandora_xquery_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'template' => 'islandora-xquery-preview',
       'variables' => array(
-        'result' => NULL,
+        'results' => NULL,
+        'batch_id' => "",
       ),
     ),
   );

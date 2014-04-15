@@ -209,7 +209,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
     'operations' => array(
       array(
         'islandora_xquery_run_query_batch_operation',
-        array($dsids, $object_range, $xquery),
+        array($dsids, $object_range, $xquery, $_SERVER['REQUEST_URI']),
       ),
     ),
   ));
@@ -227,7 +227,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
  * @param array $context
  *   The batch context.
  */
-function islandora_xquery_run_query_batch_operation(array $dsids, $object_range, $xquery, array &$context) {
+function islandora_xquery_run_query_batch_operation(array $dsids, $object_range, $xquery, $redirect, array &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['object_range'] = $object_range;
@@ -236,15 +236,27 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     // Insert a record in the db to describe this batch operation.
     $vars = drupal_get_query_parameters();
     $context['results']['batch_id'] = $vars['id'];
+    $context['results']['redirect'] = $redirect;
 
     $batch_insert_query = db_insert('islandora_xquery_batches');
-    $batch_insert_query->fields(array(
-      'batch_id',
-      'batch_created',
-      'batch_ended',
-      'xquery',
-    ));
-    $batch_insert_query->values(array($vars['id'], time(), 0, $xquery));
+    $batch_insert_query->fields(
+      array(
+        'batch_id',
+        'batch_created',
+        'batch_ended',
+        'xquery',
+        'redirect',
+      )
+    );
+    $batch_insert_query->values(
+      array(
+        $vars['id'],
+        time(),
+        0,
+        $xquery,
+        $redirect,
+      )
+    );
     $batch_insert_query->execute();
 
     // Setup the query to insert each individual find/replace preview.
@@ -286,10 +298,10 @@ function islandora_xquery_run_query_batch_finished($success, $results, $operatio
   }
 
   $results['preview_insert_query']->execute();
-  $batch_update_query = db_update('islandora_xquery_batches')->fields(array('batch_ended' => time()))->condition('batch_id', $results['batch_id'], '=')->execute();
+  db_update('islandora_xquery_batches')->fields(array('batch_ended' => time()))->condition('batch_id', $results['batch_id'], '=')->execute();
 
   // Redirect to the preview results screen.
-  drupal_goto('islandora/xquery/preview/' . $results['batch_id']);
+  drupal_goto("islandora/xquery/preview/{$results['batch_id']}");
 }
 
 /**
