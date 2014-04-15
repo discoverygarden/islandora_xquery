@@ -5,38 +5,20 @@
  */
 ?>
 
-<?php libraries_load("geshi"); ?>
-
 <div class="islandora-xquery-preview">
-    <?php print l(t("APPLY"),
-                  "islandora/xquery/preview/$batch_id/apply",
-                  array(
-                    'attributes' => array(
-                      'class' => array(
-                        'islandora-xquery-apply-link',
-                      ),
-                    ),
-                  )
-                 );
-          print " ";
-          print l(t("CANCEL"),
-                  "islandora/xquery/preview/$batch_id/cancel",
-                  array(
-                    'attributes' => array(
-                      'class' => array(
-                        'islandora-xquery-cancel-link',
-                      ),
-                    ),
-                  )
-                 );
-    ?>
+  <div class="islandora-xquery-preview-controls">
+    <ul class="islandora-xquery-prview-control-list">
+      <li class="islandora-xquery-preview-control-li"><?php print islandora_xquery_get_apply_link($batch_id); ?></li>
+      <li class="islandora-xquery-preview-control-li"><?php print islandora_xquery_get_cancel_link($batch_id); ?></li>
+    </ul>
+  </div>
+  <div class="islandora-xquery-diffs">
     <?php foreach($results as $result): ?>
-        <div class="islandora-xquery-diff">
-          <h2><?php print $result->pid; ?></h2>
-          <?php $geshi = new GeSHi($result->preview, 'diff');
-                print $geshi->parse_code();
-          ?>
-        </div>
+      <div class="islandora-xquery-diff">
+        <?php print islandora_xquery_get_original_ds_link($result->pid, $result->dsid); ?>
+        <?php print islandora_xquery_highlight_diff($result->preview); ?>
+      </div>
     <?php endforeach ?>
-    <?php print theme('pager', array('tags' => array())); ?>
+  </div>
+  <?php print theme('pager', array('tags' => array())); ?>
 </div>
