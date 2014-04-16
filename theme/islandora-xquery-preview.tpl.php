@@ -7,7 +7,7 @@
 
 <div class="islandora-xquery-preview">
   <div class="islandora-xquery-preview-controls">
-    <ul class="islandora-xquery-prview-control-list">
+    <ul class="islandora-xquery-preview-control-list">
       <li class="islandora-xquery-preview-control-li"><?php print islandora_xquery_get_apply_link($batch_id); ?></li>
       <li class="islandora-xquery-preview-control-li"><?php print islandora_xquery_get_cancel_link($batch_id); ?></li>
     </ul>
