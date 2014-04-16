@@ -16,7 +16,7 @@
     <?php foreach($results as $result): ?>
       <div class="islandora-xquery-diff">
         <?php print islandora_xquery_get_original_ds_link($result->pid, $result->dsid); ?>
-        <?php print islandora_xquery_highlight_diff($result->preview); ?>
+        <?php print islandora_xquery_highlight_diff($result->diff); ?>
       </div>
     <?php endforeach ?>
   </div>

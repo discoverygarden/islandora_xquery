@@ -59,14 +59,14 @@ function islandora_xquery_apply_query_batch_operation($batch_id, array &$context
   }
 
   // Query for remaining diffs.
-  $results = db_select('islandora_xquery_previews', 'previews')
+  $results = db_select('islandora_xquery_diffs', 'diffs')
     ->fields(
-        'previews',
+        'diffs',
         array(
           'id',
           'pid',
           'dsid',
-          'preview',
+          'diff',
           'batch_id',
         )
       )
@@ -90,7 +90,7 @@ function islandora_xquery_apply_query_batch_operation($batch_id, array &$context
  *   The number of diffs to apply.
  */
 function islandora_xquery_apply_query_batch_get_total($batch_id) {
-  return db_select('islandora_xquery_previews', 'previews')
+  return db_select('islandora_xquery_diffs', 'diffs')
     ->condition('batch_id', $batch_id, '=')
     ->condition('status', 'PENDING', '=')
     ->countQuery()
@@ -123,7 +123,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
     return;
   }
 
-  $diff = $result->preview;
+  $diff = $result->diff;
 
   $old = $datastream->getContent();
   $new = xdiff_string_patch($old, $diff);
@@ -159,7 +159,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
  */
 function islandora_xquery_apply_query_batch_update_progress($result, $status, &$context) {
   // Setup update query.
-  db_update('islandora_xquery_previews')
+  db_update('islandora_xquery_diffs')
     ->fields(array('status' => $status))
     ->condition('id', $result->id, '=')
     ->execute();

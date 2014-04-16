@@ -89,8 +89,8 @@ function islandora_xquery_schema() {
     ),
     'primary key' => array('association_id', 'token_name'),
   );
-  $schema['islandora_xquery_previews'] = array(
-    'description' => "Table that stores previews of the xquery results for viewing before user confirmation.",
+  $schema['islandora_xquery_diffs'] = array(
+    'description' => "Table that stores diffs of the xquery results for viewing before user confirmation.",
     'fields' => array(
       'id' => array(
         'description' => "Unique ID",
@@ -114,13 +114,13 @@ function islandora_xquery_schema() {
         'length' => 255,
         'not null' => TRUE,
       ),
-      'preview' => array(
-        'description' => "Preview of find/replace results.",
+      'diff' => array(
+        'description' => "Diff after find/replace.",
         'type' => 'blob',
         'not null' => TRUE,
       ),
       'status' => array(
-        'description' => 'Status of find/replace.',
+        'description' => 'Status of find/replace. PENDING, APPLIED, etc...',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -136,7 +136,7 @@ function islandora_xquery_schema() {
     ),
   );
   $schema['islandora_xquery_batches'] = array(
-    'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up previews.",
+    'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up diffs.",
     'fields' => array(
       'batch_id' => array(
         'description' => 'ID of batch running the find/replace operation.',

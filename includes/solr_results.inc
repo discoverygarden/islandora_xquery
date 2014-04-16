@@ -260,9 +260,9 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
     $batch_insert_query->execute();
 
     // Setup the query to insert each individual find/replace preview.
-    $preview_insert_query = db_insert('islandora_xquery_previews');
-    $preview_insert_query->fields(array('batch_id', 'pid', 'dsid', 'preview'));
-    $context['results']['preview_insert_query'] = $preview_insert_query;
+    $diff_insert_query = db_insert('islandora_xquery_diffs');
+    $diff_insert_query->fields(array('batch_id', 'pid', 'dsid', 'diff'));
+    $context['results']['diff_insert_query'] = $diff_insert_query;
 
     // Avoid divide by zero.
     if ($context['sandbox']['total'] == 0) {
@@ -276,7 +276,7 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
 
   foreach ($current_object as $datastream) {
     if (array_intersect($dsids, array($datastream->id))) {
-      islandora_xquery_run_query_batch_operation_generate_preview($current_object, $datastream, $xquery, $context);
+      islandora_xquery_run_query_batch_operation_generate_diff($current_object, $datastream, $xquery, $context);
     }
   }
 
@@ -297,7 +297,7 @@ function islandora_xquery_run_query_batch_finished($success, $results, $operatio
     drupal_set_message($message, 'error');
   }
 
-  $results['preview_insert_query']->execute();
+  $results['diff_insert_query']->execute();
   db_update('islandora_xquery_batches')->fields(array('batch_ended' => time()))->condition('batch_id', $results['batch_id'], '=')->execute();
 
   // Redirect to the preview results screen.
@@ -372,7 +372,7 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
 }
 
 /**
- * Adds a record to the preview insert query for the object/ds and xquery.
+ * Adds a record to the diff insert query for the object/ds and xquery.
  *
  * @param Abstractobject $object
  *   The object to run the find/replace on.
@@ -383,7 +383,7 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
  * @param array $context
  *   The context of the current batch.
  */
-function islandora_xquery_run_query_batch_operation_generate_preview($object, $datastream, $xquery, $context) {
+function islandora_xquery_run_query_batch_operation_generate_diff($object, $datastream, $xquery, $context) {
   module_load_include('inc', 'islandora_xquery', 'includes/zorba');
 
   // Make temp files for zorba to work on.
@@ -419,9 +419,9 @@ function islandora_xquery_run_query_batch_operation_generate_preview($object, $d
   xdiff_file_diff($tmp_ds_path, $tmp_output_path, $tmp_diff_path, 3);
 
   // Insert a record into the preview table.
-  $preview_insert_query = $context['results']['preview_insert_query'];
+  $diff_insert_query = $context['results']['diff_insert_query'];
   $batch_id = $context['results']['batch_id'];
-  $preview_insert_query->values(array(
+  $diff_insert_query->values(array(
     $batch_id,
     $object->id,
     $datastream->id,

@@ -15,8 +15,8 @@
  *   HTML markup for the preview.
  */
 function islandora_xquery_preview_results($batch_id) {
-  $results = db_select('islandora_xquery_previews', 'previews')
-    ->fields('previews', array('pid', 'dsid', 'preview'))
+  $results = db_select('islandora_xquery_diffs', 'diffs')
+    ->fields('diffs', array('pid', 'dsid', 'diff'))
     ->condition('batch_id', $batch_id, '=')
     ->extend('PagerDefault')
     ->limit(10)

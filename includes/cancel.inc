@@ -20,7 +20,7 @@ function islandora_xquery_cancel_results($batch_id) {
     ->fetchField();
 
   // Clear out the db.
-  db_delete('islandora_xquery_previews')
+  db_delete('islandora_xquery_diffs')
     ->condition('batch_id', $batch_id, '=')
     ->execute();
 
