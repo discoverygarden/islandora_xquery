@@ -89,6 +89,88 @@ function islandora_xquery_schema() {
     ),
     'primary key' => array('association_id', 'token_name'),
   );
+  $schema['islandora_xquery_diffs'] = array(
+    'description' => "Table that stores diffs of the xquery results for viewing before user confirmation.",
+    'fields' => array(
+      'id' => array(
+        'description' => "Unique ID",
+        'type' => 'serial',
+        'unsigned' => TRUE,
+      ),
+      'batch_id' => array(
+        'description' => 'ID of batch running the find/replace operation.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'description' => "PID of object to run find/replace.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'dsid' => array(
+        'description' => "ID of datastream to run find/replace on.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'diff' => array(
+        'description' => "Diff after find/replace.",
+        'type' => 'blob',
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Status of find/replace. PENDING, APPLIED, etc...',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'PENDING',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'index_batch_id' => array('batch_id'),
+      'index_pid' => array('pid'),
+      'index_dsid' => array('dsid'),
+      'index_status' => array('status'),
+    ),
+  );
+  $schema['islandora_xquery_batches'] = array(
+    'description' => "Table that stores batch id's and creation timestamps for returning or cleaning up diffs.",
+    'fields' => array(
+      'batch_id' => array(
+        'description' => 'ID of batch running the find/replace operation.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'batch_created' => array(
+        'description' => "Creation time of the find/replace batch.",
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'batch_ended' => array(
+        'description' => "End time of the find/replace batch.",
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'xquery' => array(
+        'description' => 'Xquery being applied in this batch',
+        'type' => 'blob',
+        'not null' => TRUE,
+      ),
+      'redirect' => array(
+        'description' => 'Where to go when the process is finished.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary_key' => array('batch_id'),
+    'indexes' => array(
+      'index_batch_created' => array('batch_created'),
+      'index_batch_ended' => array('batch_ended'),
+    ),
+  );
   return $schema;
 }
 
@@ -110,7 +192,7 @@ function islandora_xquery_requirements($phase) {
           'severity' => REQUIREMENT_ERROR,
         );
       }
-      else if (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
+      elseif (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
         $requirements['zorba'] = array(
           'title' => $t('Zorba'),
           'value' => $t('Islandora XQuery requires Zorba %required_version. Version %version is currently installed.', array(

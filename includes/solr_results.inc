@@ -166,6 +166,7 @@ function islandora_xquery_xquery_inputs_ajax($form, $form_state) {
  */
 function islandora_xquery_results_form_submit(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/db');
+
   // Get objects to work on.
   if (end($form_state['clicked_button']['#parents']) == 'submit_all') {
     $object_range = $form_state['build_info']['args'][1];
@@ -173,17 +174,21 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
   else {
     $object_range = array_keys(array_filter($form_state['values']['islandora_xquery_table']));
   }
+
   // Get DSIDs to work on.
   $dsids = explode(',', $form_state['values']['xquery_controls']['dsids']);
   $dsids = array_map('trim', $dsids);
 
-  // Get XQuery combined with tokens.
-  if (isset($form_state['values']['xquery_controls']['query'])) {
-    $xquery = $form_state['values']['xquery_controls']['query'];
+  // Get XQuery from either the text area or the db, whichever is appropriate.
+  $query_is_from_text_area = isset($form_state['values']['xquery_controls']['xquery']) && strcmp($form_state['values']['xquery_controls']['xquery'], t('Custom')) == 0;
+  if ($query_is_from_text_area) {
+    $xquery = $form_state['values']['xquery_controls']['xquery_inputs'];
   }
   else {
     $xquery = islandora_xquery_get_xquery_from_machine_name($form_state['values']['xquery_controls']['xquery']);
   }
+
+  // Substitute in the tokens.
   $tokens = array();
   $replacements = array();
   if (isset($form_state['values']['xquery_controls']['xquery_inputs']['tokens'])) {
@@ -193,6 +198,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
     }
   }
   $xquery = str_replace($tokens, $replacements, $xquery);
+
   // Set batch.
   batch_set(array(
     'title' => t('Running XQuery'),
@@ -203,14 +209,14 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
     'operations' => array(
       array(
         'islandora_xquery_run_query_batch_operation',
-        array($dsids, $object_range, $xquery),
+        array($dsids, $object_range, $xquery, request_uri()),
       ),
     ),
   ));
 }
 
 /**
- * @todo comment what this does when it does something.
+ * Populates insert query with find/replace diffs.
  *
  * @param array $dsids
  *   An array of dsids to perform the operations on.
@@ -221,20 +227,60 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
  * @param array $context
  *   The batch context.
  */
-function islandora_xquery_run_query_batch_operation(array $dsids, $object_range, $xquery, array &$context) {
+function islandora_xquery_run_query_batch_operation(array $dsids, $object_range, $xquery, $redirect, array &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['object_range'] = $object_range;
     $context['sandbox']['total'] = islandora_xquery_run_query_batch_operation_get_total($context);
+
+    // Insert a record in the db to describe this batch operation.
+    $vars = drupal_get_query_parameters();
+    $context['results']['batch_id'] = $vars['id'];
+    $context['results']['redirect'] = $redirect;
+
+    $batch_insert_query = db_insert('islandora_xquery_batches');
+    $batch_insert_query->fields(
+      array(
+        'batch_id',
+        'batch_created',
+        'batch_ended',
+        'xquery',
+        'redirect',
+      )
+    );
+    $batch_insert_query->values(
+      array(
+        $vars['id'],
+        time(),
+        0,
+        $xquery,
+        $redirect,
+      )
+    );
+    $batch_insert_query->execute();
+
+    // Setup the query to insert each individual find/replace preview.
+    $diff_insert_query = db_insert('islandora_xquery_diffs');
+    $diff_insert_query->fields(array('batch_id', 'pid', 'dsid', 'diff'));
+    $context['results']['diff_insert_query'] = $diff_insert_query;
+
     // Avoid divide by zero.
     if ($context['sandbox']['total'] == 0) {
       $context['finished'] = 1;
       return;
     }
   }
-  $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
-  // @todo Do operation here.
 
+  // Run the find/replace on all applicable datastreams.
+  $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
+
+  foreach ($current_object as $datastream) {
+    if (array_intersect($dsids, array($datastream->id))) {
+      islandora_xquery_run_query_batch_operation_generate_diff($current_object, $datastream, $xquery, $context);
+    }
+  }
+
+  // Update progress.
   $context['sandbox']['progress']++;
   $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
 }
@@ -250,6 +296,12 @@ function islandora_xquery_run_query_batch_finished($success, $results, $operatio
                  '@arguments' => print_r($error_operation[1], TRUE)));
     drupal_set_message($message, 'error');
   }
+
+  $results['diff_insert_query']->execute();
+  db_update('islandora_xquery_batches')->fields(array('batch_ended' => time()))->condition('batch_id', $results['batch_id'], '=')->execute();
+
+  // Redirect to the preview results screen.
+  drupal_goto("islandora/xquery/preview/{$results['batch_id']}");
 }
 
 /**
@@ -308,13 +360,83 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
   }
   else {
     // Populate PIDs if necessary to get one.
-    $solr_query = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
-    $solr_query->solrStart = $sandbox['sandbox']['search_settings']['offset'];
-    $solr_query->solrLimit = $context['sandbox']['search_settings']['step_size'];
-    $solr_query->executeQuery();
-    $solr_result = array_pop($solr_query->islandoraSolrResult['response']['objects']);
+    // Bit of cludge here since this class isn't available when unserializing.
+    // No idea why it's not being autoloaded.
+    // Just make a new one and re-use the properties in the sandbox.  Then
+    // replace it in the sandbox.  Its properties are needed elsewhere.
+    $old_proc = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
+    $processor = new IslandoraSolrQueryProcessor();
+    $context['sandbox']['object_range']->islandoraSolrQueryProcessor = $processor;
+    $processor->solrStart = $context['sandbox']['search_settings']['offset'];
+    $processor->solrLimit = $context['sandbox']['search_settings']['step_size'];
+    $processor->buildAndExecuteQuery($old_proc->solrQuery, $old_proc->solrParams);
+    $solr_result = array_pop($processor->islandoraSolrResult['response']['objects']);
     $pid = $solr_result['PID'];
-    $sandbox['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
+    $context['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
   }
   return islandora_object_load($pid);
+}
+
+/**
+ * Adds a record to the diff insert query for the object/ds and xquery.
+ *
+ * @param Abstractobject $object
+ *   The object to run the find/replace on.
+ * @param Abstractdatastream $datastream
+ *   The datastream to run the find/replace on.
+ * @param string $xquery
+ *   The find/replace xquery to execute.
+ * @param array $context
+ *   The context of the current batch.
+ */
+function islandora_xquery_run_query_batch_operation_generate_diff($object, $datastream, $xquery, $context) {
+  module_load_include('inc', 'islandora_xquery', 'includes/zorba');
+
+  // Make temp files for zorba to work on.
+  $tmp_ds_uri = drupal_tempnam('temporary://', 'xml');
+  $tmp_ds_path = drupal_realpath($tmp_ds_uri);
+
+  $tmp_query_uri = drupal_tempnam('temporary://', 'xq');
+  $tmp_query_path = drupal_realpath($tmp_query_uri);
+
+  $tmp_output_uri = drupal_tempnam('temporary://', 'out');
+  $tmp_output_path = drupal_realpath($tmp_output_uri);
+
+  $tmp_diff_uri = drupal_tempnam('temporary://', 'diff');
+  $tmp_diff_path = drupal_realpath($tmp_diff_uri);
+
+  // Fill the files and execute zorba.
+  $datastream->getContent($tmp_ds_path);
+  file_put_contents($tmp_query_path, $xquery);
+
+  $options = new Islandora\Zorba\Options(array(
+    'context-item' => $tmp_ds_path,
+    'output-file' => $tmp_output_path,
+    'query' => array(
+      $tmp_query_path,
+    ),
+    'indent' => TRUE,
+    'serialize-html' => TRUE,
+  ));
+
+  Islandora\Zorba\execute($options);
+
+  // Pull out the results and diff them.
+  xdiff_file_diff($tmp_ds_path, $tmp_output_path, $tmp_diff_path, 3);
+
+  // Insert a record into the preview table.
+  $diff_insert_query = $context['results']['diff_insert_query'];
+  $batch_id = $context['results']['batch_id'];
+  $diff_insert_query->values(array(
+    $batch_id,
+    $object->id,
+    $datastream->id,
+    file_get_contents($tmp_diff_path),
+  ));
+
+  // Clean up the temp files.
+  drupal_unlink($tmp_ds_uri);
+  drupal_unlink($tmp_output_uri);
+  drupal_unlink($tmp_query_uri);
+  drupal_unlink($tmp_diff_uri);
 }

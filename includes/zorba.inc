@@ -42,10 +42,10 @@ class Options implements ArrayAccess {
    *
    * @var array
    */
-  protected static $option_definitions = array(
+  protected static $optionDefinitions = array(
     // Print timing information. In case of multiple queries the timing
     // information is provided per each query. Both wall clock time and user
-    // time (which excludes I/O, network delays and other kernel waits) are
+    // time (which excludes I/O, network delays and other kernel waits) are.
     'timing' => array(
       'type' => 'boolean',
     ),
@@ -150,7 +150,7 @@ class Options implements ArrayAccess {
     'parse-only' => array(
       'type' => 'boolean',
     ),
-    // Only compile (don't execute)
+    // Only compile (don't execute).
     'compile-only' => array(
       'type' => 'boolean',
     ),
@@ -200,7 +200,7 @@ class Options implements ArrayAccess {
       'type' => 'string',
       'multiple' => TRUE,
     ),
-    // JVM classpath to be used by modules using Java implementations
+    // JVM classpath to be used by modules using Java implementations.
     'classpath' => array(
       'type' => 'string',
       'multiple' => TRUE,
@@ -242,7 +242,7 @@ class Options implements ArrayAccess {
     'execute-plan' => array(
       'type' => 'boolean',
     ),
-    // Do not use HTTP to resolve URIs
+    // Do not use HTTP to resolve URIs.
     'disable-http-resolution' => array(
       'type' => 'boolean',
     ),
@@ -267,23 +267,24 @@ class Options implements ArrayAccess {
    *   The default option definitions for all accepted types.
    */
   protected static function getDefaultTypeOptionDefinitions() {
+    // @codingStandardsIgnoreStart
     static $default_option_type_definitions = NULL;
     if ($default_option_type_definitions === NULL) {
       // Call the given function with only the $value parameter. Used in the
       // simple validation callbacks.
       $call_without_option_function = function ($function) {
-        return function($option, $value) use ($function) {
+        return function ($option, $value) use ($function) {
           return $function($value);
         };
       };
       // Serialize a single value option.
-      $serialize_single_value_option = function($option, $value) {
+      $serialize_single_value_option = function ($option, $value) {
         return "--{$option} \"{$value}\"";
       };
       $default_option_type_definitions = array(
         'boolean' => array(
           'validate' => $call_without_option_function('is_bool'),
-          'serialize' => function($option, $value) {
+          'serialize' => function ($option, $value) {
             return $value ? "--{$option}" : '';
           },
         ),
@@ -296,14 +297,15 @@ class Options implements ArrayAccess {
           'serialize' => $serialize_single_value_option,
         ),
         'select' => array(
-          'validate' => function($option, $value) {
-            return in_array($value, Options::$option_definitions[$option]['options']);
+          'validate' => function ($option, $value) {
+            return in_array($value, Options::$optionDefinitions[$option]['options']);
           },
           'serialize' => $serialize_single_value_option,
         ),
       );
     }
     return $default_option_type_definitions;
+    // @codingStandardsIgnoreEnd
   }
 
   /**
@@ -330,7 +332,7 @@ class Options implements ArrayAccess {
    *   TRUE if the given option exists, FALSE otherwise.
    */
   public static function exists($option) {
-    return !empty(self::$option_definitions[$option]);
+    return !empty(self::$optionDefinitions[$option]);
   }
 
   /**
@@ -338,15 +340,15 @@ class Options implements ArrayAccess {
    *
    * @param string $option
    *   The option to check.
-   * @param $value
+   * @param mixed $value
    *   The option value to check.
    *
    * @return bool
    *   TRUE if the given option / value is valid, FALSE otherwise.
    */
   public static function valid($option, $value) {
-    if(self::exists($option)) {
-      $definition = self::$option_definitions[$option];
+    if (self::exists($option)) {
+      $definition = self::$optionDefinitions[$option];
       $definition += self::getDefaultTypeOptionDefinition($definition['type']);
       return call_user_func($definition['validate'], $option, $value);
     }
@@ -363,7 +365,7 @@ class Options implements ArrayAccess {
    *   TRUE if the given option allows multiple values, FALSE otherwise.
    */
   public static function multiple($option) {
-    return isset(self::$option_definitions[$option]['multiple']) && self::$option_definitions[$option]['multiple'];
+    return isset(self::$optionDefinitions[$option]['multiple']) && self::$optionDefinitions[$option]['multiple'];
   }
 
   /**
@@ -371,15 +373,15 @@ class Options implements ArrayAccess {
    *
    * @param string $option
    *   The option to serialize.
-   * @param $value
+   * @param mixed $value
    *   The option value to serialize.
    *
    * @return string
    *   A string representing the given option and value.
    */
   public static function serialize($option, $value) {
-    if(self::exists($option)) {
-      $definition = self::$option_definitions[$option];
+    if (self::exists($option)) {
+      $definition = self::$optionDefinitions[$option];
       $definition += self::getDefaultTypeOptionDefinition($definition['type']);
       // Serialize the given value using the serialize function in the option
       // definition.
@@ -412,6 +414,8 @@ class Options implements ArrayAccess {
   }
 
   /**
+   * Magic offsetGet.
+   *
    * This is implemented for multivalued options as offsetGet does not return by
    * reference, which is needed for multidimensional arrays.
    *
@@ -427,6 +431,8 @@ class Options implements ArrayAccess {
   }
 
   /**
+   * Magic offsetSet.
+   *
    * This is implemented for multivalued options as offsetGet does not return by
    * reference, which is need for multidimensional arrays.
    *
@@ -437,6 +443,8 @@ class Options implements ArrayAccess {
   }
 
   /**
+   * Checks to see if the offset exists.
+   *
    * @see ArrayAccess::offsetExists
    */
   public function offsetExists($option) {
@@ -444,6 +452,8 @@ class Options implements ArrayAccess {
   }
 
   /**
+   * Custom offsetGet.
+   *
    * We don't allow for indirect access to elements as our min version of PHP is
    * 5.3.3, and indirect access was not added until 5.3.4. Please use the __get
    * to do indirect access on options.
@@ -461,6 +471,8 @@ class Options implements ArrayAccess {
   }
 
   /**
+   * Custom offsetSet.
+   *
    * @see ArrayAccess::offsetSet
    */
   public function offsetSet($option, $value) {
@@ -469,20 +481,22 @@ class Options implements ArrayAccess {
       throw new InvalidArgumentException('Unknown command line option ' . $option);
     }
     // Validate the given single value.
-    $validate = function($value) use ($option) {
+    $validate = function($value) use($option) {
       if (!Options::valid($option, $value)) {
         throw new InvalidArgumentException("Invalid value '{$value}' given for command line option '{$option}'");
       }
     };
     // Multiple valued options must always be stored as arrays.
     $value = (self::multiple($option) && !is_array($value)) ? array($value) : $value;
-    // Validate the given value / values
+    // Validate the given value / values.
     is_array($value) ? array_walk($value, $validate) : $validate($value);
     // No exceptions? Assign.
     $this->options[$option] = $value;
   }
 
   /**
+   * Custom offsetUnset.
+   *
    * @see ArrayAccess::offsetUnset
    */
   public function offsetUnset($option) {
@@ -511,7 +525,7 @@ class Options implements ArrayAccess {
    * @throws InvalidArgumentException
    *   If the given option can not be disabled.
    *
-   * @param $option
+   * @param string $option
    *   Only use options which can be toggled on/off like "print-query".
    */
   public function disable($option) {
@@ -541,9 +555,10 @@ class Options implements ArrayAccess {
   }
 
   /**
-   * Get the string representation of this object, used to
+   * Generates a string representation.
    *
    * @return string
+   *   The representation of this object.
    */
   public function __toString() {
     $output = '';

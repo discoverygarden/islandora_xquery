@@ -24,7 +24,7 @@ function islandora_xquery_template_delete_confirm_form($form, &$form_state, $ass
   $form_state['association_name'] = $association_name;
   return confirm_form($form,
     t('Are you sure you want to delete the @association_name display configuration?', array('@association_name' => $association_name)),
-    "admin/islandora/xquery/manage/template/$association_id",
+    "admin/islandora/tools/xquery/manage/template/$association_id",
     t('This action cannot be undone.'),
     t('Delete'),
     t('Cancel')
@@ -42,6 +42,6 @@ function islandora_xquery_template_delete_confirm_form($form, &$form_state, $ass
 function islandora_xquery_template_delete_confirm_form_submit($form, &$form_state) {
   module_load_include('inc', 'islandora_xquery', 'includes/db');
   islandora_xquery_delete_association($form_state['association_id']);
-  $form_state['redirect'] = 'admin/islandora/xquery/manage';
+  $form_state['redirect'] = 'admin/islandora/tools/xquery/manage';
   drupal_set_message(t('The @association_name display configuration has been deleted!', array('@association_name' => $form_state['association_name'])));
 }

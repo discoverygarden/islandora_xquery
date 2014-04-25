@@ -10,12 +10,19 @@
 define('ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION', '3.0.0');
 define('ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION', '/usr/bin/zorba');
 
+define('ISLANDORA_XQUERY_STATUS_PENDING', 'PENDING');
+define('ISLANDORA_XQUERY_STATUS_OBJECT_LOAD_FAIL', 'OBJECT LOAD FAIL');
+define('ISLANDORA_XQUERY_STATUS_DATASTREAM_LOAD_FAIL', 'DATASTREAM LOAD FAIL');
+define('ISLANDORA_XQUERY_STATUS_PATCH_FAIL', 'PATCH FAIL');
+define('ISLANDORA_XQUERY_STATUS_DATSTREAM_UPDATE_FAIL', 'DATSTREAM UPDATE FAIL');
+define('ISLANDORA_XQUERY_STATUS_APPLIED', 'APPLIED');
+
 /**
  * Implements hook_menu().
  */
 function islandora_xquery_menu() {
   $items = array();
-  $items['admin/islandora/xquery/manage'] = array(
+  $items['admin/islandora/tools/xquery/manage'] = array(
     'title' => 'XQuery',
     'description' => 'Configure templates for Islandora XQuery',
     'access arguments' => array('administer islandora_xquery'),
@@ -23,7 +30,7 @@ function islandora_xquery_menu() {
     'page arguments' => array('islandora_xquery_admin_form'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/islandora/xquery/manage/template/%'] = array(
+  $items['admin/islandora/tools/xquery/manage/template/%'] = array(
     'title' => 'Manage Template',
     'description' => 'Manages a specific template for use in Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
@@ -32,7 +39,7 @@ function islandora_xquery_menu() {
     'page arguments' => array('islandora_xquery_template_management_form', 5),
     'file' => 'includes/manage.inc',
   );
-  $items['admin/islandora/xquery/manage/template/%/delete'] = array(
+  $items['admin/islandora/tools/xquery/manage/template/%/delete'] = array(
     'title' => 'Delete Template',
     'description' => 'Deletes a specific template from Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
@@ -41,7 +48,76 @@ function islandora_xquery_menu() {
     'page arguments' => array('islandora_xquery_template_delete_confirm_form', 5),
     'file' => 'includes/delete.inc',
   );
+  $items['islandora/xquery/preview/%'] = array(
+    'title' => 'Query Preview',
+    'description' => "Provides a preview of xquery results before commiting them to Fedora.",
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
+    'page callback' => 'islandora_xquery_preview_results',
+    'page arguments' => array(3),
+    'file' => 'includes/preview.inc',
+  );
+  $items['islandora/xquery/preview/%/apply'] = array(
+    'title' => 'Apply Query',
+    'description' => "Applies results of an xquery and commits them to Fedora.",
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
+    'page callback' => 'islandora_xquery_apply_results',
+    'page arguments' => array(3),
+    'file' => 'includes/apply.inc',
+  );
+  $items['islandora/xquery/preview/%/cancel'] = array(
+    'title' => 'Apply Query',
+    'description' => "Cancels an xquery find/replace operation.",
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
+    'page callback' => 'islandora_xquery_cancel_results',
+    'page arguments' => array(3),
+    'file' => 'includes/cancel.inc',
+  );
   return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function islandora_xquery_theme($existing, $type, $theme, $path) {
+  $items = array();
+  $items['islandora_xquery_preview'] = array(
+    'path' => $path . '/theme',
+    'file' => 'theme.inc',
+    'template' => 'islandora-xquery-preview',
+    'variables' => array(
+      'results' => NULL,
+      'batch_id' => "",
+      'apply_link' => "",
+      'cancel_link' => "",
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function islandora_xquery_libraries_info() {
+  return array(
+    'geshi' => array(
+      'title' => 'GeSHi - Generic Syntax Highlighter for PHP',
+      'vendor url' => 'http://sourceforge.net/projects/geshi',
+      'download url' => 'http://sourceforge.net/projects/geshi/files/geshi',
+      'version arguments' => array(
+        'file' => 'geshi.php',
+        'pattern' => "/define\('GESHI_VERSION', '(.*)'\);/",
+        'lines' => 50,
+      ),
+      'files' => array(
+        'php' => array(
+          'geshi.php',
+        ),
+      ),
+    ),
+  );
 }
 
 /**
@@ -51,6 +127,9 @@ function islandora_xquery_permission() {
   return array(
     'administer islandora_xquery' => array(
       'title' => 'Create and manage XQuery templates',
+    ),
+    'search and replace with xquery' => array(
+      'title' => 'Search and replace with XQuery',
     ),
   );
 }
@@ -83,4 +162,98 @@ function islandora_xquery_islandora_solr_primary_display() {
       'description' => t('Search results for performing an XQuery find/replace operation.'),
     ),
   );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function islandora_xquery_form_islandora_solr_advanced_search_form_alter(&$form, &$form_state, $form_id) {
+  if (user_access('search and replace with xquery')) {
+    $form['xquery'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('XQuery search and replace?'),
+    );
+    $form['#submit'][0] = 'islandora_xquery_solr_advanced_search_form_submit';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function islandora_xquery_form_islandora_solr_simple_search_form_alter(&$form, &$form_state, $form_id) {
+  if (user_access('search and replace with xquery')) {
+    $form['xquery'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('XQuery search and replace?'),
+    );
+    $form['#submit'][0] = 'islandora_xquery_solr_search_form_submit';
+  }
+}
+
+/**
+ * Altered Islandora Solr advanced search form submit callback.
+ *
+ * @param array $form
+ *   An associative array containing form structure.
+ * @param array $form_state
+ *   An associative array containing form state.
+ *
+ * @see islandora_solr_advanced_search_form()
+ */
+function islandora_xquery_solr_advanced_search_form_submit($form, &$form_state) {
+  // Collect query values.
+  $query_array = array();
+  foreach ($form_state['values']['terms'] as $term) {
+    $field = $term['field'];
+    $search = trim($term['search']);
+    // XXX: Should probably use islandora_solr_replace_slashes().
+    $search = str_replace('/', '~slsh~', $search);
+    $boolean = (isset($term['boolean'])) ? $term['boolean'] : variable_get('islandora_solr_search_boolean', 'user');
+
+    // Add query.
+    if (!empty($search)) {
+      $query_array[] = array(
+        'search' => "$field:($search)",
+        'boolean' => $boolean,
+      );
+    }
+  }
+  // Create query.
+  $query = '';
+  $i = 0;
+  foreach ($query_array as $term) {
+    $query .= $term['search'];
+    if (count($query_array) - 1 != $i) {
+      $query .= ' ' . $term['boolean'] . ' ';
+    }
+    $i++;
+  }
+
+  // Check if query is empty.
+  if (empty($query)) {
+    $query = '*:*';
+  }
+  $options = array();
+  if ($form_state['values']['xquery']) {
+    $options = array('query' => array('display' => 'xquery'));
+  }
+  // Navigate to results page.
+  drupal_goto('islandora/search/' . $query, $options);
+}
+
+/**
+ * Islandora Solr simple search form submit callback.
+ *
+ * @param array $form
+ *   An associative array containing form structure.
+ * @param array $form_state
+ *   An associative array containing form state.
+ */
+function islandora_xquery_solr_search_form_submit($form, &$form_state) {
+  $search_string = str_replace('/', '~slsh~', $form_state['values']['islandora_simple_search_query']);
+  $options = array('query' => array('type' => 'dismax'));
+  if ($form_state['values']['xquery']) {
+    $options['query']['display'] = 'xquery';
+  }
+  drupal_goto('islandora/search/' . $search_string, $options);
 }
