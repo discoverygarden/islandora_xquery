@@ -25,7 +25,7 @@ function islandora_xquery_admin_form($form, &$form_state) {
   foreach ($associations as $association) {
     $association_id = $association['association_id'];
     $rows[] = array(
-      l($association['template_name'], "admin/islandora/xquery/manage/template/$association_id"),
+      l($association['template_name'], "admin/islandora/tools/xquery/manage/template/$association_id"),
       $association['machine_name'],
       $association['template_description'],
     );

@@ -20,7 +20,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Templates can be added for re-use at /admin/islandora/xquery/manage.
+Templates can be added for re-use at /admin/islandora/tools/xquery/manage.
 
 ## Troubleshooting/Issues
 
