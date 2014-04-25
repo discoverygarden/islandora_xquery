@@ -242,7 +242,7 @@ function islandora_xquery_template_management_form_submit($form, &$form_state) {
   }
   if ($parents == array('actions', 'delete')) {
     $association_id = $form_state['values']['association_id'];
-    drupal_goto("admin/islandora/xquery/manage/template/$association_id/delete");
+    drupal_goto("admin/islandora/tools/xquery/manage/template/$association_id/delete");
   }
 }
 

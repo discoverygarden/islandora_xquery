@@ -6,6 +6,7 @@
  * @todo
  *   Handle "the i18n_string integration fun".
  */
+
 define('ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION', '3.0.0');
 define('ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION', '/usr/bin/zorba');
 
@@ -21,7 +22,7 @@ define('ISLANDORA_XQUERY_STATUS_APPLIED', 'APPLIED');
  */
 function islandora_xquery_menu() {
   $items = array();
-  $items['admin/islandora/xquery/manage'] = array(
+  $items['admin/islandora/tools/xquery/manage'] = array(
     'title' => 'XQuery',
     'description' => 'Configure templates for Islandora XQuery',
     'access arguments' => array('administer islandora_xquery'),
@@ -29,7 +30,7 @@ function islandora_xquery_menu() {
     'page arguments' => array('islandora_xquery_admin_form'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/islandora/xquery/manage/template/%'] = array(
+  $items['admin/islandora/tools/xquery/manage/template/%'] = array(
     'title' => 'Manage Template',
     'description' => 'Manages a specific template for use in Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
@@ -38,7 +39,7 @@ function islandora_xquery_menu() {
     'page arguments' => array('islandora_xquery_template_management_form', 5),
     'file' => 'includes/manage.inc',
   );
-  $items['admin/islandora/xquery/manage/template/%/delete'] = array(
+  $items['admin/islandora/tools/xquery/manage/template/%/delete'] = array(
     'title' => 'Delete Template',
     'description' => 'Deletes a specific template from Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
@@ -125,7 +126,7 @@ function islandora_xquery_permission() {
       'title' => 'Create and manage XQuery templates',
     ),
     'search and replace with xquery' => array(
-      'title' => 'Create and manage XQuery templates',
+      'title' => 'Search and replace with XQuery',
     ),
   );
 }
@@ -246,12 +247,10 @@ function islandora_xquery_solr_advanced_search_form_submit($form, &$form_state) 
  *   An associative array containing form state.
  */
 function islandora_xquery_solr_search_form_submit($form, &$form_state) {
-  $form_state['rebuild'] = TRUE;
   $search_string = str_replace('/', '~slsh~', $form_state['values']['islandora_simple_search_query']);
   $options = array('query' => array('type' => 'dismax'));
   if ($form_state['values']['xquery']) {
     $options['query']['display'] = 'xquery';
-    drupal_set_message("Condition met");
   }
   drupal_goto('islandora/search/' . $search_string, $options);
 }

@@ -3,6 +3,7 @@ description = "Allows the user to modify objects datastreams using XQuery."
 package = Islandora Tools
 version = 7.x-dev
 core = 7.x
+configure = admin/islandora/tools/xquery/manage
 dependencies[] = islandora
 dependencies[] = islandora_solr
 dependencies[] = libraries
