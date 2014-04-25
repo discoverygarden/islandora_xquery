@@ -64,7 +64,7 @@ function islandora_xquery_get_cancel_link($batch_id) {
  */
 function islandora_xquery_get_original_ds_link($pid, $dsid) {
   return l(
-    t("$pid - $dsid"),
+    t("@pid - @dsid", array("@pid" => $pid, "@dsid" => $dsid)),
     "islandora/object/$pid/datastream/$dsid/view",
     array(
       'attributes' => array(
@@ -85,8 +85,7 @@ function islandora_xquery_get_original_ds_link($pid, $dsid) {
  * @return string
  *   HTML of the diff that is formatted and highlighted.
  */
-function islandora_xquery_highlight_diff($diff)
-{
+function islandora_xquery_highlight_diff($diff) {
   libraries_load("geshi");
   $geshi = new GeSHi($diff, 'diff');
   return $geshi->parse_code();

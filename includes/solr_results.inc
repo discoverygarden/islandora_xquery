@@ -209,7 +209,7 @@ function islandora_xquery_results_form_submit(array $form, array &$form_state) {
     'operations' => array(
       array(
         'islandora_xquery_run_query_batch_operation',
-        array($dsids, $object_range, $xquery, $_SERVER['REQUEST_URI']),
+        array($dsids, $object_range, $xquery, request_uri()),
       ),
     ),
   ));
@@ -360,13 +360,19 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
   }
   else {
     // Populate PIDs if necessary to get one.
-    $solr_query = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
-    $solr_query->solrStart = $sandbox['sandbox']['search_settings']['offset'];
-    $solr_query->solrLimit = $context['sandbox']['search_settings']['step_size'];
-    $solr_query->executeQuery();
-    $solr_result = array_pop($solr_query->islandoraSolrResult['response']['objects']);
+    // Bit of cludge here since this class isn't available when unserializing.
+    // No idea why it's not being autoloaded.
+    // Just make a new one and re-use the properties in the sandbox.  Then
+    // replace it in the sandbox.  Its properties are needed elsewhere.
+    $old_proc = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
+    $processor = new IslandoraSolrQueryProcessor();
+    $context['sandbox']['object_range']->islandoraSolrQueryProcessor = $processor;
+    $processor->solrStart = $context['sandbox']['search_settings']['offset'];
+    $processor->solrLimit = $context['sandbox']['search_settings']['step_size'];
+    $processor->buildAndExecuteQuery($old_proc->solrQuery, $old_proc->solrParams);
+    $solr_result = array_pop($processor->islandoraSolrResult['response']['objects']);
     $pid = $solr_result['PID'];
-    $sandbox['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
+    $context['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
   }
   return islandora_object_load($pid);
 }
@@ -400,7 +406,7 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   $tmp_diff_path = drupal_realpath($tmp_diff_uri);
 
   // Fill the files and execute zorba.
-  file_put_contents($tmp_ds_path, $datastream->getContent());
+  $datastream->getContent($tmp_ds_path);
   file_put_contents($tmp_query_path, $xquery);
 
   $options = new Islandora\Zorba\Options(array(
