@@ -6,7 +6,6 @@
  * @todo
  *   Handle "the i18n_string integration fun".
  */
-
 define('ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION', '3.0.0');
 define('ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION', '/usr/bin/zorba');
 
@@ -16,7 +15,6 @@ define('ISLANDORA_XQUERY_STATUS_DATASTREAM_LOAD_FAIL', 'DATASTREAM LOAD FAIL');
 define('ISLANDORA_XQUERY_STATUS_PATCH_FAIL', 'PATCH FAIL');
 define('ISLANDORA_XQUERY_STATUS_DATSTREAM_UPDATE_FAIL', 'DATSTREAM UPDATE FAIL');
 define('ISLANDORA_XQUERY_STATUS_APPLIED', 'APPLIED');
-
 
 /**
  * Implements hook_menu().
@@ -126,6 +124,9 @@ function islandora_xquery_permission() {
     'administer islandora_xquery' => array(
       'title' => 'Create and manage XQuery templates',
     ),
+    'search and replace with xquery' => array(
+      'title' => 'Create and manage XQuery templates',
+    ),
   );
 }
 
@@ -157,4 +158,100 @@ function islandora_xquery_islandora_solr_primary_display() {
       'description' => t('Search results for performing an XQuery find/replace operation.'),
     ),
   );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function islandora_xquery_form_islandora_solr_advanced_search_form_alter(&$form, &$form_state, $form_id) {
+  if (user_access('search and replace with xquery')) {
+    $form['xquery'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('XQuery search and replace?'),
+    );
+    $form['#submit'][0] = 'islandora_xquery_solr_advanced_search_form_submit';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function islandora_xquery_form_islandora_solr_simple_search_form_alter(&$form, &$form_state, $form_id) {
+  if (user_access('search and replace with xquery')) {
+    $form['xquery'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('XQuery search and replace?'),
+    );
+    $form['#submit'][0] = 'islandora_xquery_solr_search_form_submit';
+  }
+}
+
+/**
+ * Altered Islandora Solr advanced search form submit callback.
+ *
+ * @param array $form
+ *   An associative array containing form structure.
+ * @param array $form_state
+ *   An associative array containing form state.
+ *
+ * @see islandora_solr_advanced_search_form()
+ */
+function islandora_xquery_solr_advanced_search_form_submit($form, &$form_state) {
+  // Collect query values.
+  $query_array = array();
+  foreach ($form_state['values']['terms'] as $term) {
+    $field = $term['field'];
+    $search = trim($term['search']);
+    // XXX: Should probably use islandora_solr_replace_slashes().
+    $search = str_replace('/', '~slsh~', $search);
+    $boolean = (isset($term['boolean'])) ? $term['boolean'] : variable_get('islandora_solr_search_boolean', 'user');
+
+    // Add query.
+    if (!empty($search)) {
+      $query_array[] = array(
+        'search' => "$field:($search)",
+        'boolean' => $boolean,
+      );
+    }
+  }
+  // Create query.
+  $query = '';
+  $i = 0;
+  foreach ($query_array as $term) {
+    $query .= $term['search'];
+    if (count($query_array) - 1 != $i) {
+      $query .= ' ' . $term['boolean'] . ' ';
+    }
+    $i++;
+  }
+
+  // Check if query is empty.
+  if (empty($query)) {
+    $query = '*:*';
+  }
+  $options = array();
+  if ($form_state['values']['xquery']) {
+    $options = array('query' => array('display' => 'xquery'));
+  }
+  // Navigate to results page.
+  drupal_goto('islandora/search/' . $query, $options);
+}
+
+/**
+ * Islandora Solr simple search form submit callback.
+ *
+ * @param array $form
+ *   An associative array containing form structure.
+ * @param array $form_state
+ *   An associative array containing form state.
+ */
+function islandora_xquery_solr_search_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  $search_string = str_replace('/', '~slsh~', $form_state['values']['islandora_simple_search_query']);
+  $options = array('query' => array('type' => 'dismax'));
+  if ($form_state['values']['xquery']) {
+    $options['query']['display'] = 'xquery';
+    drupal_set_message("Condition met");
+  }
+  drupal_goto('islandora/search/' . $search_string, $options);
 }
