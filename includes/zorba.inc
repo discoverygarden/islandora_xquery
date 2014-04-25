@@ -267,6 +267,7 @@ class Options implements ArrayAccess {
    *   The default option definitions for all accepted types.
    */
   protected static function getDefaultTypeOptionDefinitions() {
+    // @codingStandardsIgnoreStart
     static $default_option_type_definitions = NULL;
     if ($default_option_type_definitions === NULL) {
       // Call the given function with only the $value parameter. Used in the
@@ -304,6 +305,7 @@ class Options implements ArrayAccess {
       );
     }
     return $default_option_type_definitions;
+    // @codingStandardsIgnoreEnd
   }
 
   /**
