@@ -34,18 +34,18 @@ function islandora_xquery_menu() {
     'title' => 'Manage Template',
     'description' => 'Manages a specific template for use in Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
-    'access arguments' => array(5),
+    'access arguments' => array(6),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_xquery_template_management_form', 5),
+    'page arguments' => array('islandora_xquery_template_management_form', 6),
     'file' => 'includes/manage.inc',
   );
   $items['admin/islandora/tools/xquery/manage/template/%/delete'] = array(
     'title' => 'Delete Template',
     'description' => 'Deletes a specific template from Islandora XQuery',
     'access callback' => 'islandora_xquery_access',
-    'access arguments' => array(5),
+    'access arguments' => array(6),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_xquery_template_delete_confirm_form', 5),
+    'page arguments' => array('islandora_xquery_template_delete_confirm_form', 6),
     'file' => 'includes/delete.inc',
   );
   $items['islandora/xquery/preview/%'] = array(
