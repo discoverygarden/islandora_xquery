@@ -218,7 +218,7 @@ function islandora_xquery_apply_query_batch_finished($success, $results, $operat
   if (isset($results['ignored_objects']) && count($results['ignored_objects']) > 0) {
     $output = t('The following object(s) were skipped because they have been locked or altered since the query was run.');
     foreach ($results['ignored_objects'] as $ignored_object) {
-      $output .= ' ' . l($ignored_object, "islandora/object/$ignored_object" . ' ');
+      $output .= ' ' . l($ignored_object, "islandora/object/$ignored_object") . ' ';
     }
     drupal_set_message(filter_xss($output));
   }
