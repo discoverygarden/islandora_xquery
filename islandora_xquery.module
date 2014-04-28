@@ -51,7 +51,8 @@ function islandora_xquery_menu() {
   $items['islandora/xquery/preview/%'] = array(
     'title' => 'Query Preview',
     'description' => "Provides a preview of xquery results before commiting them to Fedora.",
-    'access callback' => TRUE,
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
     'page callback' => 'islandora_xquery_preview_results',
     'page arguments' => array(3),
     'file' => 'includes/preview.inc',
@@ -59,7 +60,8 @@ function islandora_xquery_menu() {
   $items['islandora/xquery/preview/%/apply'] = array(
     'title' => 'Apply Query',
     'description' => "Applies results of an xquery and commits them to Fedora.",
-    'access callback' => TRUE,
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
     'page callback' => 'islandora_xquery_apply_results',
     'page arguments' => array(3),
     'file' => 'includes/apply.inc',
@@ -67,7 +69,8 @@ function islandora_xquery_menu() {
   $items['islandora/xquery/preview/%/cancel'] = array(
     'title' => 'Apply Query',
     'description' => "Cancels an xquery find/replace operation.",
-    'access callback' => TRUE,
+    'access callback' => 'user_access',
+    'access arguments' => array('search and replace with xquery'),
     'page callback' => 'islandora_xquery_cancel_results',
     'page arguments' => array(3),
     'file' => 'includes/cancel.inc',
