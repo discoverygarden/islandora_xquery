@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * An primary Solr display for running XQuery queries.
@@ -10,6 +11,7 @@
  * Extention of IslandoraSolrResults to create an alternative display type.
  */
 class IslandoraSolrResultsXquery extends IslandoraSolrResults {
+
   /**
    * Constructor.
    */
@@ -29,12 +31,30 @@ class IslandoraSolrResultsXquery extends IslandoraSolrResults {
    *   Rendered Solr results
    */
   public function printResults($results) {
+    if (module_exists('islandora_object_lock')) {
+      module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
+      $locked = islandora_object_lock_get_locks(0, 10000);
+      $found_pids = array();
+      foreach ($results['response']['objects'] as $object) {
+        $found_pids[] = $object['PID'];
+      }
+      $conflicts = array_intersect(array_keys($locked), $found_pids);
+      if (!empty($conflicts)) {
+        $output = count($conflicts) == 1 ? t('This object in the resultset is currently locked by other users') : t('These objects in the resultset are currently locked by other users');
+
+        foreach ($conflicts as $conflict) {
+          $output .= '<br />' . l($conflict, "islandora/object/$conflict");
+        }
+        return $output;
+      }
+    }
     if (empty($results)) {
       return t('No results.');
     }
     $results_form = drupal_get_form('islandora_xquery_results_form', $results['response']['objects'], $this);
     return drupal_render($results_form);
   }
+
 }
 
 /**
@@ -63,8 +83,7 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
   foreach ($object_results as $object_result) {
     $rows[$object_result['PID']] = array(
       'markup' => l(
-        isset($object_result['solr_doc'][$label_field]) ? $object_result['solr_doc'][$label_field] : $object_result['PID'],
-        $object_result['object_url']
+          isset($object_result['solr_doc'][$label_field]) ? $object_result['solr_doc'][$label_field] : $object_result['PID'], $object_result['object_url']
       ),
     );
   }
@@ -132,7 +151,7 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
       }
       else {
         $tokens = islandora_xquery_get_tokens_from_machine_name(
-          $form_state['values']['xquery_controls']['xquery']
+            $form_state['values']['xquery_controls']['xquery']
         );
         $form['xquery_controls']['xquery_inputs']['tokens'] = array();
         foreach ($tokens as $token) {
@@ -240,22 +259,22 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
 
     $batch_insert_query = db_insert('islandora_xquery_batches');
     $batch_insert_query->fields(
-      array(
-        'batch_id',
-        'batch_created',
-        'batch_ended',
-        'xquery',
-        'redirect',
-      )
+        array(
+          'batch_id',
+          'batch_created',
+          'batch_ended',
+          'xquery',
+          'redirect',
+        )
     );
     $batch_insert_query->values(
-      array(
-        $vars['id'],
-        time(),
-        0,
-        $xquery,
-        $redirect,
-      )
+        array(
+          $vars['id'],
+          time(),
+          0,
+          $xquery,
+          $redirect,
+        )
     );
     $batch_insert_query->execute();
 
@@ -292,8 +311,8 @@ function islandora_xquery_run_query_batch_finished($success, $results, $operatio
   if (!$success) {
     $error_operation = reset($operations);
     $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
-                 '%error_operation' => $error_operation[0],
-                 '@arguments' => print_r($error_operation[1], TRUE)));
+      '%error_operation' => $error_operation[0],
+      '@arguments' => print_r($error_operation[1], TRUE)));
     drupal_set_message($message, 'error');
   }
 
@@ -322,8 +341,8 @@ function islandora_xquery_run_query_batch_operation_get_total(&$context) {
   }
   $solr = $context['sandbox']['object_range'];
   return $context['sandbox']['object_range']
-    ->islandoraSolrQueryProcessor
-    ->islandoraSolrResult['response']['numFound'];
+      ->islandoraSolrQueryProcessor
+      ->islandoraSolrResult['response']['numFound'];
 }
 
 /**
@@ -346,15 +365,15 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
   if (!isset($context['sandbox']['search_settings'])) {
     $context['sandbox']['search_settings']['step_size'] = 100;
     $context['sandbox']['search_settings']['offset'] = count(
-      $context['sandbox']['object_range']
+        $context['sandbox']['object_range']
         ->islandoraSolrQueryProcessor
         ->islandoraSolrResult['response']['objects']
     );
   }
   // Get a PID if available.
   $solr_result = array_pop($context['sandbox']['object_range']
-    ->islandoraSolrQueryProcessor
-    ->islandoraSolrResult['response']['objects']);
+      ->islandoraSolrQueryProcessor
+      ->islandoraSolrResult['response']['objects']);
   if ($solr_result) {
     $pid = $solr_result['PID'];
   }
