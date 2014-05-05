@@ -43,6 +43,7 @@ function islandora_xquery_apply_results($batch_id) {
  *   The batch context.
  */
 function islandora_xquery_apply_query_batch_operation($batch_id, array &$context) {
+  module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
 
   if (!isset($context['sandbox']['progress'])) {
     // Init progress.
@@ -87,25 +88,24 @@ function islandora_xquery_apply_query_batch_operation($batch_id, array &$context
   $batch_time = $batch_times->batch_created;
 
   $ignored_objects = array();
-  if (module_exists('islandora_object_lock')) {
-    module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
-    foreach ($results as $result) {
-      $include = TRUE;
-      $fedora_object = islandora_object_load($result->pid);
-      $locked = islandora_object_lock_is_locked($fedora_object);
-      $created_date = strtotime($fedora_object[$result->dsid]->createdDate);
-      if ($locked) {
-        $ignored_objects[] = $result->pid;
-        $include = FALSE;
-      }
-      elseif ($created_date > $batch_time) {
-        $ignored_objects[] = $result->pid;
-        $include = FALSE;
-      }
-      islandora_object_lock_set_object_lock($result->pid);
-      islandora_xquery_apply_query_batch_apply_diff($result, $context);
+
+  foreach ($results as $result) {
+    $include = TRUE;
+    $fedora_object = islandora_object_load($result->pid);
+    $locked = islandora_object_lock_is_locked($fedora_object);
+    $created_date = strtotime($fedora_object[$result->dsid]->createdDate);
+    if ($locked) {
+      $ignored_objects[] = $result->pid;
+      $include = FALSE;
     }
+    elseif ($created_date > $batch_time) {
+      $ignored_objects[] = $result->pid;
+      $include = FALSE;
+    }
+    islandora_object_lock_set_object_lock($result->pid);
+    islandora_xquery_apply_query_batch_apply_diff($result, $context);
   }
+
   $context['results']['ignored_objects'] = $ignored_objects;
 }
 

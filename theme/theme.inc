@@ -86,6 +86,9 @@ function islandora_xquery_get_original_ds_link($pid, $dsid) {
  *   HTML of the diff that is formatted and highlighted.
  */
 function islandora_xquery_highlight_diff($diff) {
+  if (empty($diff)) {
+    $diff = t("NO DIFF TO APPLY");
+  }
   libraries_load("geshi");
   $geshi = new GeSHi($diff, 'diff');
   return $geshi->parse_code();
