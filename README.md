@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This module utilizes Zorba to run XQueries agains XML documents stored in Fedora.
+This module utilizes Zorba to run XQueries against XML documents stored in Fedora.
 
 ## Requirements
 
