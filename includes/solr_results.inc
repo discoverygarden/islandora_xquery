@@ -415,6 +415,9 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   $tmp_ds_uri = drupal_tempnam('temporary://', 'xml');
   $tmp_ds_path = drupal_realpath($tmp_ds_uri);
 
+  $tmp_clean_ds_uri = drupal_tempnam('temporary://', 'xml');
+  $tmp_clean_ds_path = drupal_realpath($tmp_clean_ds_uri);
+
   $tmp_query_uri = drupal_tempnam('temporary://', 'xq');
   $tmp_query_path = drupal_realpath($tmp_query_uri);
 
@@ -424,24 +427,34 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   $tmp_diff_uri = drupal_tempnam('temporary://', 'diff');
   $tmp_diff_path = drupal_realpath($tmp_diff_uri);
 
-  // Fill the files and execute zorba.
+  // Apply an identity transform on the datastream to have saxon parse it and
+  // clean it up a little so the diffs don't get crazy with entity escaping.
   $datastream->getContent($tmp_ds_path);
+  $options = new Islandora\Zorba\Options(array(
+    'context-item' => $tmp_ds_path,
+    'output-file' => $tmp_clean_ds_path,
+    'query' => array(
+      drupal_get_path('module', 'islandora_xquery') . '/queries/identity.xq',
+    ),
+  ));
+
+  Islandora\Zorba\execute($options);
+
+  // Now execute the query the user wants.
   file_put_contents($tmp_query_path, $xquery);
 
   $options = new Islandora\Zorba\Options(array(
-    'context-item' => $tmp_ds_path,
+    'context-item' => $tmp_clean_ds_path,
     'output-file' => $tmp_output_path,
     'query' => array(
       $tmp_query_path,
     ),
-    'indent' => TRUE,
-    'serialize-html' => TRUE,
   ));
 
   Islandora\Zorba\execute($options);
 
   // Pull out the results and diff them.
-  xdiff_file_diff($tmp_ds_path, $tmp_output_path, $tmp_diff_path, 3);
+  xdiff_file_diff($tmp_clean_ds_path, $tmp_output_path, $tmp_diff_path, 3);
 
   // Insert a record into the preview table.
   $diff_insert_query = $context['results']['diff_insert_query'];
@@ -455,6 +468,7 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
 
   // Clean up the temp files.
   drupal_unlink($tmp_ds_uri);
+  drupal_unlink($tmp_clean_ds_uri);
   drupal_unlink($tmp_output_uri);
   drupal_unlink($tmp_query_uri);
   drupal_unlink($tmp_diff_uri);

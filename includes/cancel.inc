@@ -29,5 +29,6 @@ function islandora_xquery_cancel_results($batch_id) {
     ->execute();
 
   // Redirect.
-  drupal_goto($redirect);
+  $url = drupal_parse_url($redirect);
+  drupal_goto($url['path'], $url);
 }
