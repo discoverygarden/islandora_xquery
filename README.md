@@ -15,8 +15,6 @@ In addition to a functioning Islandora instance with the Libraries API, this mod
 
 ## Installation
 
-Here’s an example installation script for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
-
 Basic Algorithm:
 * [Install Zorba](http://www.zorba.io/documentation/latest/zorba/install)
 * [Compile libxdiff from source (./configure, make, make install)](http://www.xmailserver.org/xdiff-lib.html)
@@ -25,52 +23,7 @@ Basic Algorithm:
 * [Install Islandora Object Lock Module](https://github.com/discoverygarden/islandora_object_lock)
 * Install Islandora Xquery Module
 
-```bash
-#Go home.
-cd ~
-
-# Get zorba
-sudo add-apt-repository ppa:juan457/zorba
-sudo apt-get update
-sudo apt-get install zorba
-
-# Compile xdiff PHP extension and dependencies
-wget http://www.xmailserver.org/libxdiff-0.23.tar.gz
-tar -xzf libxdiff-0.23.tar.gz
-rm libxdiff-0.23.tar.gz
-cd libxdiff-0.23
-./configure
-make
-sudo make install
-cd ~
-sudo pear install pecl/xdiff-1.5.2
-rm -rf libxdiff-0.23
-
-# Add the xdiff extension to php configuration
-echo "extension=xdiff.so" > xdiff.ini
-sudo cp xdiff.ini /etc/php5/conf.d
-rm xdiff.ini
-
-# Restart apache so extension kicks in
-sudo service apache2 restart
-
-# Add the php libraries using the libraries api
-wget -O geshi.tar.gz http://sourceforge.net/projects/geshi/files/latest/download
-tar xvf geshi.tar.gz
-cp -r geshi /var/www/drupal7/sites/all/libraries
-rm geshi.tar.gz
-rm -rf geshi
-
-# Pull down the code from github
-cd /var/www/drupal7/sites/all/modules
-git clone https://github.com/discoverygarden/islandora_object_lock.git
-git clone https://github.com/daniel-dgi/islandora_xquery.git
-drush en islandora_object_lock
-drush en islandora_xquery
-
-#Go home.
-cd ~
-```
+Here’s [an example installation script](resources/install_islandora_xquery.sh) for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
 
 ## Configuration
 
@@ -82,6 +35,9 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 * [Islandora Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora)
 * [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
+
+### Warning!
+The default Zorba implementation uses the Saxon processor , which WILL unescape your xml entities!  For example , if you want to change a title such as this: ```<dc:title>&quot;Things and Stuff&quot;</dc:title>``` by adding a ‘!’ at the end, you’ll wind up with  ```<dc:title>”Things and Stuff!”</dc:title>``` as output.  Your exclamation point will be there, but so will some brand spanking new quotes you never asked for!  You’ve been warned!
 
 ## Maintainers/Sponsors
 Current maintainers:

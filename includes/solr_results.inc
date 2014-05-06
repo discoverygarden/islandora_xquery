@@ -412,20 +412,20 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   module_load_include('inc', 'islandora_xquery', 'includes/zorba');
 
   // Make temp files for zorba to work on.
-  $tmp_ds_uri = drupal_tempnam('temporary://', 'xml');
-  $tmp_ds_path = drupal_realpath($tmp_ds_uri);
+  $tmp_ds_file = islandora_xquery_get_temp_file('temporary://ds.xml');
+  $tmp_ds_path = islandora_xquery_get_path_from_file($tmp_ds_file);
 
-  $tmp_clean_ds_uri = drupal_tempnam('temporary://', 'xml');
-  $tmp_clean_ds_path = drupal_realpath($tmp_clean_ds_uri);
+  $tmp_clean_ds_file = islandora_xquery_get_temp_file('temporary://clean_ds.xml');
+  $tmp_clean_ds_path = islandora_xquery_get_path_from_file($tmp_clean_ds_file);
 
-  $tmp_query_uri = drupal_tempnam('temporary://', 'xq');
-  $tmp_query_path = drupal_realpath($tmp_query_uri);
+  $tmp_query_file = islandora_xquery_get_temp_file('temporary://query.xq');
+  $tmp_query_path = islandora_xquery_get_path_from_file($tmp_query_file);
 
-  $tmp_output_uri = drupal_tempnam('temporary://', 'out');
-  $tmp_output_path = drupal_realpath($tmp_output_uri);
+  $tmp_output_file = islandora_xquery_get_temp_file('temporary://zorba.out');
+  $tmp_output_path = islandora_xquery_get_path_from_file($tmp_output_file);
 
-  $tmp_diff_uri = drupal_tempnam('temporary://', 'diff');
-  $tmp_diff_path = drupal_realpath($tmp_diff_uri);
+  $tmp_diff_file = islandora_xquery_get_temp_file('temporary://out.diff');
+  $tmp_diff_path = islandora_xquery_get_path_from_file($tmp_diff_file);
 
   // Apply an identity transform on the datastream to have saxon parse it and
   // clean it up a little so the diffs don't get crazy with entity escaping.
@@ -467,9 +467,55 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   ));
 
   // Clean up the temp files.
-  drupal_unlink($tmp_ds_uri);
-  drupal_unlink($tmp_clean_ds_uri);
-  drupal_unlink($tmp_output_uri);
-  drupal_unlink($tmp_query_uri);
-  drupal_unlink($tmp_diff_uri);
+  file_delete($tmp_ds_file);
+  file_delete($tmp_clean_ds_file);
+  file_delete($tmp_output_file);
+  file_delete($tmp_query_file);
+  file_delete($tmp_diff_file);
+}
+
+/**
+ * Add a file as managed if is not already.
+ *
+ * @param string $file_uri
+ *   The given file URI location.
+ *
+ * @return object
+ *   The file, as returned from file_save().
+ */
+function islandora_xquery_get_temp_file($file_uri, $mime = NULL) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'file')
+    ->propertyCondition('uri', $file_uri)
+    ->execute();
+  if (isset($result['file'])) {
+    $fid = current($result['file'])->fid;
+    $file = file_load($fid);
+  }
+  else {
+    $file = new stdClass();
+    $file->uri = $file_uri;
+    $file->filename = drupal_basename($file_uri);
+    if (isset($mime)) {
+      $file->filemime = $mime;
+    }
+  }
+  $file->status = 0;
+  return file_save($file);
+}
+
+/**
+ * Gets the path to a file object using safe Drupal methods.
+ *
+ * @param StdClass $file
+ *   The file object whose path we desire.
+ *
+ * @return string
+ *   The path to the file.
+ */
+function islandora_xquery_get_path_from_file($file) {
+  $uri = $file->uri;
+  $wrapper = file_stream_wrapper_get_instance_by_uri($uri);
+  return $wrapper->realpath();
 }
