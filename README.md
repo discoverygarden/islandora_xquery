@@ -37,7 +37,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 * [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
 
 ### Warning!
-The default Zorba implementation uses the Saxon processor , which WILL unescape your xml entities!  For example , if you want to change a title such as this: ```<dc:title>&quot;Things and Stuff&quot;</dc:title>``` by adding a ‘!’ at the end, you’ll wind up with  ```<dc:title>”Things and Stuff!”</dc:title>``` as output.  Your exclamation point will be there, but so will some brand spanking new quotes you never asked for!  You’ve been warned!
+The default Zorba implementation uses the Saxon processor , which WILL unescape your xml entities!  For example , even the lowly identity transform will change ```<dc:title>&quot;Things and Stuff&quot;</dc:title>``` to  ```<dc:title>”Things and Stuff”</dc:title>```.  You will get some brand spanking new quotes you never asked for!  You’ve been warned!
 
 ## Maintainers/Sponsors
 Current maintainers:
