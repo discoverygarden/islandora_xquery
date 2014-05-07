@@ -36,7 +36,7 @@ rm -rf geshi
 # Pull down the code from github
 cd /var/www/drupal7/sites/all/modules
 git clone https://github.com/discoverygarden/islandora_object_lock.git
-git clone https://github.com/daniel-dgi/islandora_xquery.git
+git clone https://github.com/discoverygarden/islandora_xquery.git
 drush en islandora_object_lock
 drush en islandora_xquery
 
