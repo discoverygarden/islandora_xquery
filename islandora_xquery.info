@@ -7,5 +7,6 @@ configure = admin/islandora/tools/xquery/manage
 dependencies[] = islandora
 dependencies[] = islandora_solr
 dependencies[] = libraries
+dependencies[] = islandora_object_lock
 files[] = tests/xquery.test
 php = 5.3
