@@ -15,6 +15,8 @@ In addition to a functioning Islandora instance with the Libraries API, this mod
 
 ## Installation
 
+Here’s [an example installation script](resources/install_islandora_xquery.sh) for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
+
 Basic Algorithm:
 * [Install Zorba](http://www.zorba.io/documentation/latest/zorba/install)
 * [Compile libxdiff from source (./configure, make, make install)](http://www.xmailserver.org/xdiff-lib.html)
@@ -22,8 +24,6 @@ Basic Algorithm:
 * Install GeSHi using the Libraries API (put geshi folder in sites/all/libraries)
 * [Install Islandora Object Lock Module](https://github.com/discoverygarden/islandora_object_lock)
 * Install Islandora Xquery Module
-
-Here’s [an example installation script](resources/install_islandora_xquery.sh) for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
 
 ## Configuration
 
