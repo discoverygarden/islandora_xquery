@@ -225,10 +225,7 @@ function islandora_xquery_solr_advanced_search_form_submit($form, &$form_state) 
  *   An associative array containing form state.
  */
 function islandora_xquery_solr_search_form_submit($form, &$form_state) {
-  $search_string = str_replace('/', '~slsh~', $form_state['values']['islandora_simple_search_query']);
-  $options = array('query' => array('type' => 'dismax'));
   if ($form_state['values']['xquery']) {
-    $options['query']['display'] = 'xquery';
+    $form_state['redirect'][1]['query']['display'] = 'xquery';
   }
-  drupal_goto('islandora/search/' . $search_string, $options);
 }
