@@ -171,13 +171,15 @@ function islandora_xquery_form_islandora_solr_advanced_search_form_alter(&$form,
   // Filter out to just the enabled profile and see if XQuery is one of them.
   if (user_access('search and replace with xquery')) {
     $primary_display_array = variable_get('islandora_solr_primary_display_table', array());
-    $display = array_filter($primary_display_array['enabled']);
-    if (isset($display['xquery'])) {
-      $form['xquery'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('XQuery search and replace?'),
-      );
-      $form['#submit'][] = 'islandora_xquery_solr_advanced_search_form_submit';
+    if (!empty($primary_display_array)) {
+      $display = array_filter($primary_display_array['enabled']);
+      if (isset($display['xquery'])) {
+        $form['xquery'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('XQuery search and replace?'),
+        );
+        $form['#submit'][] = 'islandora_xquery_solr_advanced_search_form_submit';
+      }
     }
   }
 }
@@ -189,13 +191,15 @@ function islandora_xquery_form_islandora_solr_simple_search_form_alter(&$form, &
   // Filter out to just the enabled profile and see if XQuery is one of them.
   if (user_access('search and replace with xquery')) {
     $primary_display_array = variable_get('islandora_solr_primary_display_table', array());
-    $display = array_filter($primary_display_array['enabled']);
-    if (isset($display['xquery'])) {
-      $form['xquery'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('XQuery search and replace?'),
-      );
-      $form['#submit'][] = 'islandora_xquery_solr_advanced_search_form_submit';
+    if (!empty($primary_display_array)) {
+      $display = array_filter($primary_display_array['enabled']);
+      if (isset($display['xquery'])) {
+        $form['xquery'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('XQuery search and replace?'),
+        );
+        $form['#submit'][] = 'islandora_xquery_solr_search_form_submit';
+      }
     }
   }
 }
