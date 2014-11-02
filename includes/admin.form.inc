@@ -56,7 +56,7 @@ function islandora_xquery_admin_form($form, &$form_state) {
   );
   $form['configure_zorba']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Configure'),
     '#submit' => array('islandora_xquery_admin_form_zorba_configure_submit'),
     '#limit_validation_errors' => array(
       array('zorba'),
