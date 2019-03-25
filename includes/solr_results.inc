@@ -436,16 +436,12 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   if (strcmp($datastream->label, "DC Record") == 0) {
     // Apply an identity transform on the datastream to have saxon parse it and
     // clean it up a little so the diffs don't get crazy with entity escaping.
-    $options = new Islandora\Zorba\Options(
-      array(
-        'context-item' => $tmp_ds_path,
-        'output-file' => $tmp_clean_ds_path,
-        'query' => array(
-          drupal_get_path('module', 'islandora_xquery') . '/queries/identity.xq',
-        ),
-      )
+    $xquery_object = islandora_xquery_get_query_object(
+      $tmp_ds_path,
+      $tmp_clean_ds_path,
+      drupal_get_path('module', 'islandora_xquery') . '/queries/identity.xq'
     );
-    Islandora\Zorba\execute($options);
+    $xquery_object->execute();
   }
   else {
     $tmp_clean_ds_file = $tmp_ds_file;
@@ -454,15 +450,12 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
 
   // Now execute the query the user wants.
   file_put_contents($tmp_query_path, $xquery);
-  $options = new Islandora\Zorba\Options(array(
-    'context-item' => $tmp_clean_ds_path,
-    'output-file' => $tmp_output_path,
-    'query' => array(
-      $tmp_query_path,
-    ),
-  ));
-
-  Islandora\Zorba\execute($options);
+  $xquery_object = islandora_xquery_get_query_object(
+    $tmp_clean_ds_path,
+    $tmp_output_path,
+    $tmp_query_path
+  );
+  $xquery_object->execute();
 
   // Pull out the results and diff them.
   xdiff_file_diff($tmp_clean_ds_path, $tmp_output_path, $tmp_diff_path, 3);
