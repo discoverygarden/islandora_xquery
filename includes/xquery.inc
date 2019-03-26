@@ -1,7 +1,20 @@
 <?php
 
+/**
+ * Helper class for getting the query implementation(s).
+ */
 class IslandoraXquery {
 
+  /**
+   * Get the query object for the configured implementation.
+   *
+   * @param string $context
+   *   Filepath to pass as the query context.
+   * @param string $output
+   *   Filepath to receive the output.
+   * @param string $query
+   *   Filepath from which to fetch the query.
+   */
   public static function queryObject($context, $output, $query) {
     $class = static::getImplementation()[1];
     return call_user_func_array(array($class, 'createBasicQuery'), func_get_args());
@@ -16,10 +29,9 @@ class IslandoraXquery {
    */
   public static function getImplementations() {
     module_load_include('inc', 'islandora_xquery', 'includes/zorba');
-    module_load_include('inc', 'islandora_xquery', 'includes/basex');
     return array(
       'zorba' => \Islandora\Zorba\Options::class,
-      'basex' => \Islandora\Xquery\BaseX::class,
+      'basex' => IslandoraXqueryBaseX::class,
     );
   }
 

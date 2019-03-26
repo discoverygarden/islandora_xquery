@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Extended interface with form helpers.
+ */
 interface IslandoraXqueryConfigurableProcessorInterface extends IslandoraXqueryQueryInterface {
 
   /**

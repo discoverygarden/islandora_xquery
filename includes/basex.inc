@@ -1,10 +1,6 @@
 <?php
 
-namespace Islandora\Xquery;
-
-use IslandoraXqueryConfigurableProcessorInterface;
-
-class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
+class IslandoraXqueryBaseX implements IslandoraXqueryConfigurableProcessorInterface {
 
   /**
    * Constructor; build out our object.
@@ -27,7 +23,10 @@ class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Helper; get the name of the executable.
+   *
+   * @return string
+   *   The name of the executable to use.
    */
   public static function getExecutable() {
     return variable_get('islandora_xquery_basex_executable', 'basex');
@@ -44,10 +43,10 @@ class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
    * {@inheritdoc}
    */
   public function execute() {
-    return $this->execCommand(array(
+    return static::execCommand(array(
       static::getExecutable(),
-      "-i {$this->context}",
-      "-o {$this->output}",
+      "-i{$this->context}",
+      "-o{$this->output}",
       $this->query,
     ));
   }
@@ -56,10 +55,10 @@ class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
    * {@inheritdoc}
    */
   public function validate() {
-    return $this->execCommand(array(
+    return static::execCommand(array(
       static::getExecutable(),
-      "-i {$this->context}",
-      "-o {$this->output}",
+      "-i{$this->context}",
+      "-o{$this->output}",
       '-R false',
       $this->query,
     ));
@@ -74,7 +73,7 @@ class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
    * @return bool
    *   TRUE if the command exited with exit-code 0; otherwise, FALSE.
    */
-  protected function execCommand(array $command_bits) {
+  protected static function execCommand(array $command_bits) {
     $command = implode(' ', array_map('escapeshellarg', $command_bits));
 
     $output = array();

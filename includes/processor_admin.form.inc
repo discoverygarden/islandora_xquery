@@ -1,9 +1,15 @@
 <?php
 
+/**
+ * @file
+ * Processor admin form.
+ */
+
+/**
+ * Form building function.
+ */
 function islandora_xquery_processor_admin_form(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/processor_admin.form');
-    module_load_include('inc', 'islandora_xquery', 'includes/zorba');
-    module_load_include('inc', 'islandora_xquery', 'includes/basex');
 
   $form_state['storage']['implementations'] = IslandoraXquery::getImplementations();
 
@@ -57,6 +63,9 @@ function islandora_xquery_processor_admin_form(array $form, array &$form_state) 
   return $form;
 }
 
+/**
+ * Submission handler.
+ */
 function islandora_xquery_processor_admin_form_submit(array $form, &$form_state) {
   $selected = $form_state['values']['processors'];
   variable_set('islandora_xquery_implementation', $form_state['values']['processors']);

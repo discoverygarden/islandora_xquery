@@ -1,7 +1,9 @@
 <?php
 
+/**
+ * Query interface.
+ */
 interface IslandoraXQueryQueryInterface {
-
 
   /**
    * Simple factory method.
