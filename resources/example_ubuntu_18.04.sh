@@ -47,6 +47,7 @@ git clone https://github.com/discoverygarden/islandora_object_lock.git
 git clone https://github.com/discoverygarden/islandora_xquery.git
 drush en islandora_object_lock
 drush en islandora_xquery
+drush vset --exact islandora_xquery_basex_executable $(which basex)
 
 #Go home.
 cd /
