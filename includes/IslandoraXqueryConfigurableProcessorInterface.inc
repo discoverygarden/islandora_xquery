@@ -24,7 +24,7 @@ interface IslandoraXqueryConfigurableProcessorInterface extends IslandoraXqueryQ
   public static function getForm(array $offset, array &$form_state);
 
   /**
-   * Persist the config form.
+   * Persist the values from our config form.
    *
    * @param array $values
    *   The values which were entered for our part of the form.
