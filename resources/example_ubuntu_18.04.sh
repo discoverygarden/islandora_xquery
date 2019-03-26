@@ -1,7 +1,14 @@
 #!/bin/bash
 
 DRUPAL_ROOT=${1:-/var/www/drupal7}
+
+if [ ! -d $DRUPAL_ROOT ]; then
+  echo "$DRUPAL_ROOT does not exist!"
+  exit 1
+fi
+
 SCRATCH_DIR=$(mktemp -d)
+
 
 sudo apt-get install basex build-essential php-dev php-pear
 
@@ -28,11 +35,11 @@ sudo echo "extension=xdiff.so" > /etc/php/7.2/mods-available/xdiff.ini
 sudo phpenmod xdiff
 
 # Restart apache so extension kicks in
-sudo service apache2 restart
+sudo systemctl restart apache2
 
 # Add the php libraries using the libraries api
 wget -O geshi.tar.gz http://sourceforge.net/projects/geshi/files/latest/download
-tar -xzf geshi.tar.gz -C $DRUPAL_ROOT/sites/libraries
+tar -xzf geshi.tar.gz -C $DRUPAL_ROOT/sites/all/libraries
 
 # Pull down the code from github
 cd $DRUPAL_ROOT/sites/all/modules
