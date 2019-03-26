@@ -29,7 +29,7 @@ class IslandoraXqueryBaseX implements IslandoraXqueryConfigurableProcessorInterf
    *   The name of the executable to use.
    */
   public static function getExecutable() {
-    return variable_get('islandora_xquery_basex_executable', 'basex');
+    return variable_get('islandora_xquery_basex_executable', '/usr/bin/basex');
   }
 
   /**
