@@ -87,7 +87,7 @@ class IslandoraXqueryBaseX implements IslandoraXqueryConfigurableProcessorInterf
   /**
    * {@inheritdoc}
    */
-  public static function getForm($offset, &$form_state) {
+  public static function getForm(array $offset, array &$form_state) {
     form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/basex');
     form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/utilities');
     form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/admin.form');
