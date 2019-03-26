@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * BaseX processor implementation.
+ */
 class IslandoraXqueryBaseX implements IslandoraXqueryConfigurableProcessorInterface {
 
   /**
@@ -107,8 +110,8 @@ class IslandoraXqueryBaseX implements IslandoraXqueryConfigurableProcessorInterf
         '#type' => 'textfield',
         '#title' => t('BaseX exectuable'),
         '#description' => t('BaseX will be used to execute XQuery queries.<br/>!msg', array(
-          '!msg' => islandora_executable_available_message($executable))
-        ),
+          '!msg' => islandora_executable_available_message($executable),
+        )),
         '#default_value' => $executable,
         '#ajax' => array(
           'callback' => 'islandora_xquery_admin_form_ajax_callback',

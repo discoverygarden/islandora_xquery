@@ -6,10 +6,11 @@
  */
 
 namespace Islandora\Zorba;
-use ArrayAccess,
-    InvalidArgumentException,
-    OutOfBoundsException,
-    IslandoraXqueryConfigurableProcessorInterface;
+
+use ArrayAccess;
+use InvalidArgumentException;
+use OutOfBoundsException;
+use IslandoraXqueryConfigurableProcessorInterface;
 
 /**
  * Class Options
@@ -583,6 +584,9 @@ class Options implements ArrayAccess, IslandoraXqueryConfigurableProcessorInterf
     return valid($this);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function createBasicQuery($context, $output, $query) {
     return new static(array(
       'context-item' => $context,
@@ -624,8 +628,8 @@ class Options implements ArrayAccess, IslandoraXqueryConfigurableProcessorInterf
         '#type' => 'textfield',
         '#title' => t('Zorba exectuable'),
         '#description' => t('Zorba is used to execute XQuery queries.<br/>!msg', array(
-          '!msg' => islandora_executable_available_message($zorba, $version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION))
-        ),
+          '!msg' => islandora_executable_available_message($zorba, $version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION),
+        )),
         '#default_value' => $zorba,
         '#ajax' => array(
           'callback' => 'islandora_xquery_admin_form_ajax_callback',

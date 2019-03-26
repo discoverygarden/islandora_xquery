@@ -25,4 +25,5 @@ class IslandoraXqueryNoExecutableException extends Exception {
       $this->class,
     );
   }
+
 }

@@ -30,7 +30,11 @@ class IslandoraXquery {
   public static function getImplementations() {
     module_load_include('inc', 'islandora_xquery', 'includes/zorba');
     return array(
+      // @codingStandardsIgnoreStart
+      // XXX: We're unable to "use" this class as Drupal seems to want, since
+      // we can't autoload it.
       'zorba' => \Islandora\Zorba\Options::class,
+      // @codingStandardsIgnoreEnd
       'basex' => IslandoraXqueryBaseX::class,
     );
   }

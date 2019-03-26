@@ -37,7 +37,10 @@ function islandora_xquery_processor_admin_form(array $form, array &$form_state) 
 
   foreach ($form_state['storage']['implementations'] as $name => $class) {
     $form['processor'][$name] = (is_callable(array($class, "getForm")) ?
-      call_user_func_array(array($class, "getForm"), array(array('processor', $name), &$form_state)) :
+      call_user_func_array(
+        array($class, "getForm"),
+        array(array('processor', $name), &$form_state)
+      ) :
       array(
         '#markup' => t('No configuration...'),
       )) + array(
