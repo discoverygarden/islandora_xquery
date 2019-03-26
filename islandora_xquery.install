@@ -221,6 +221,15 @@ function islandora_xquery_requirements($phase) {
 function islandora_xquery_uninstall() {
   $variables = array(
     'islandora_xquery_zorba',
+    'islandora_xquery_basex_executable',
+    'islandora_xquery_implementation',
   );
   array_walk($variables, 'variable_del');
+}
+
+/**
+ * Preserve default processor for existing installations.
+ */
+function islandora_xquery_update_7100() {
+  variable_set('islandora_xquery_implementation', 'zorba');
 }
