@@ -436,12 +436,13 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
   if (strcmp($datastream->label, "DC Record") == 0) {
     // Apply an identity transform on the datastream to have saxon parse it and
     // clean it up a little so the diffs don't get crazy with entity escaping.
-    $xquery_object = islandora_xquery_get_query_object(
+    $xquery_object = IslandoraXquery::queryObject(
       $tmp_ds_path,
       $tmp_clean_ds_path,
       drupal_get_path('module', 'islandora_xquery') . '/queries/identity.xq'
     );
-    $xquery_object->execute();
+    $return = $xquery_object->execute();
+    assert($return == TRUE, 'DC identity transform succeeded.');
   }
   else {
     $tmp_clean_ds_file = $tmp_ds_file;
@@ -450,12 +451,13 @@ function islandora_xquery_run_query_batch_operation_generate_diff($object, $data
 
   // Now execute the query the user wants.
   file_put_contents($tmp_query_path, $xquery);
-  $xquery_object = islandora_xquery_get_query_object(
+  $xquery_object = IslandoraXquery::queryObject(
     $tmp_clean_ds_path,
     $tmp_output_path,
     $tmp_query_path
   );
-  $xquery_object->execute();
+  $return = $xquery_object->execute();
+  assert($return == TRUE, 'Main XQuery succeeded.');
 
   // Pull out the results and diff them.
   xdiff_file_diff($tmp_clean_ds_path, $tmp_output_path, $tmp_diff_path, 3);

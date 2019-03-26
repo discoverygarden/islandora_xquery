@@ -6,12 +6,18 @@ use IslandoraXqueryConfigurableProcessorInterface;
 
 class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
 
-  public function __construct($context, $output, $query) {
+  /**
+   * Constructor; build out our object.
+   */
+  protected function __construct($context, $output, $query) {
     $this->context = $context;
     $this->output = $output;
     $this->query = $query;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function createBasicQuery($context, $output, $query) {
     return new static(
       $context,
@@ -20,46 +26,63 @@ class BaseX implements IslandoraXqueryConfigurableProcessorInterface {
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getExecutable() {
     return variable_get('islandora_xquery_basex_executable', 'basex');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function hasExecutable() {
     return is_executable(static::getExecutable());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute() {
-
-    $command_bits = array(
+    return $this->execCommand(array(
       static::getExecutable(),
-      '-i' . drupal_realpath($this->context),
-      '-o' . drupal_realpath($this->output),
-      drupal_realpath($this->query),
-    );
-
-    $command = implode(array_map('escapeshellarg', $command_bits));
-    $output = array();
-    $return = 0;
-    exec($command, $output, $return);
-    return $return == 0;
-
+      "-i {$this->context}",
+      "-o {$this->output}",
+      $this->query,
+    ));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function validate() {
-    $command_bits = array(
+    return $this->execCommand(array(
       static::getExecutable(),
-      '-i' . drupal_realpath($this->context),
-      '-o' . drupal_realpath($this->output),
-      '-Rfalse',
-      drupal_realpath($this->query),
-    );
+      "-i {$this->context}",
+      "-o {$this->output}",
+      '-R false',
+      $this->query,
+    ));
+  }
 
-    $command = implode(array_map('escapeshellarg', $command_bits));
+  /**
+   * Helper; execute the given command.
+   *
+   * @param array $command_bits
+   *   An array of command parts... we'll escape them before calling.
+   *
+   * @return bool
+   *   TRUE if the command exited with exit-code 0; otherwise, FALSE.
+   */
+  protected function execCommand(array $command_bits) {
+    $command = implode(' ', array_map('escapeshellarg', $command_bits));
+
     $output = array();
     $return = 0;
-    exec($command, $output, $return);
-    return $return == 0;
 
+    exec($command, $output, $return);
+
+    return $return == 0;
   }
 
   /**
