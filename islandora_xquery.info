@@ -12,6 +12,7 @@ files[] = tests/xquery.test
 files[] = includes/xquery.inc
 files[] = includes/zorba.inc
 files[] = includes/basex.inc
+files[] = includes/solr_results.inc
 files[] = includes/IslandoraXqueryNoExectuableException.inc
 files[] = includes/IslandoraXqueryQueryInterface.inc
 files[] = includes/IslandoraXqueryConfigurableProcessorInterface.inc
