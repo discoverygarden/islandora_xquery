@@ -30,38 +30,6 @@ function islandora_xquery_admin_form($form, &$form_state) {
       $association['template_description'],
     );
   }
-  $form['configure_zorba'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Configure Zorba'),
-    '#collapsed' => FALSE,
-    '#collapsible' => FALSE,
-  );
-  $zorba = isset($form_state['values']['zorba']) ? $form_state['values']['zorba'] : variable_get('islandora_xquery_zorba', ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION);
-  $version = islandora_xquery_get_zorba_version($zorba);
-  $form['configure_zorba']['zorba'] = array(
-    '#prefix' => '<div id="zorba-executable-wrapper">',
-    '#suffix' => '</div>',
-    '#type' => 'textfield',
-    '#title' => t('Zorba'),
-    '#description' => t('Zorba is used to execute XQuery queries.<br/>!msg', array(
-      '!msg' => islandora_executable_available_message($zorba, $version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION))
-    ),
-    '#default_value' => $zorba,
-    '#ajax' => array(
-      'callback' => 'islandora_xquery_admin_form_ajax_callback',
-      'wrapper' => 'zorba-executable-wrapper',
-      'effect' => 'fade',
-      'event' => 'change',
-    ),
-  );
-  $form['configure_zorba']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Configure'),
-    '#submit' => array('islandora_xquery_admin_form_zorba_configure_submit'),
-    '#limit_validation_errors' => array(
-      array('zorba'),
-    ),
-  );
   $form['table'] = array(
     '#theme' => 'table',
     '#header' => array(
@@ -136,18 +104,6 @@ function islandora_xquery_admin_form_submit($form, &$form_state) {
 }
 
 /**
- * Submit handler for the template overview form.
- *
- * @param array $form
- *   An array representing a Drupal form.
- * @param array $form_state
- *   An array representing the Drupal form state.
- */
-function islandora_xquery_admin_form_zorba_configure_submit($form, &$form_state) {
-  variable_set('islandora_xquery_zorba', $form_state['values']['zorba']);
-}
-
-/**
  * Ajax callback for the Tesseract textfield.
  *
  * @param array $form
@@ -159,5 +115,5 @@ function islandora_xquery_admin_form_zorba_configure_submit($form, &$form_state)
  *   The element to render as part the ajax callback.
  */
 function islandora_xquery_admin_form_ajax_callback(array $form, array $form_state) {
-  return $form['configure_zorba']['zorba'];
+  return drupal_array_get_nested_value($form, $form_state['triggering_element']['#array_parents']);
 }

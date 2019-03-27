@@ -6,9 +6,11 @@
  */
 
 namespace Islandora\Zorba;
-use ArrayAccess,
-    InvalidArgumentException,
-    OutOfBoundsException;
+
+use ArrayAccess;
+use InvalidArgumentException;
+use OutOfBoundsException;
+use IslandoraXqueryConfigurableProcessorInterface;
 
 /**
  * Class Options
@@ -17,7 +19,7 @@ use ArrayAccess,
  *
  * @package Islandora\Zorba
  */
-class Options implements ArrayAccess {
+class Options implements ArrayAccess, IslandoraXqueryConfigurableProcessorInterface {
 
   /**
    * Defines the possible options and what values are acceptable.
@@ -566,6 +568,84 @@ class Options implements ArrayAccess {
       $output .= self::serialize($option, $value) . ' ';
     }
     return trim($output);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function execute() {
+    return execute($this);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validate() {
+    return valid($this);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createBasicQuery($context, $output, $query) {
+    return new static(array(
+      'context-item' => $context,
+      'output-file' => $output,
+      'query' => array(
+        $query,
+      ),
+    ));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function hasExecutable() {
+    return is_executable(variable_get('islandora_xquery_zorba', '/usr/bin/zorba'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getForm(array $offset, array &$form_state) {
+    form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/zorba');
+    form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/utilities');
+    form_load_include($form_state, 'inc', 'islandora_xquery', 'includes/admin.form');
+    form_load_include($form_state, 'inc', 'islandora', 'includes/utilities');
+
+    $zorba = drupal_array_get_nested_value($form_state, array_merge(array('values'), $offset, array('executable')));
+    if (!isset($zorba)) {
+      $zorba = variable_get('islandora_xquery_zorba', ISLANDORA_XQUERY_ZORBA_DEFAULT_LOCATION);
+    }
+
+    $id = 'zorba-executable-wrapper';
+    $version = islandora_xquery_get_zorba_version($zorba);
+
+    return array(
+      'executable' => array(
+        '#prefix' => "<div id='$id'>",
+        '#suffix' => '</div>',
+        '#type' => 'textfield',
+        '#title' => t('Zorba exectuable'),
+        '#description' => t('Zorba is used to execute XQuery queries.<br/>!msg', array(
+          '!msg' => islandora_executable_available_message($zorba, $version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION),
+        )),
+        '#default_value' => $zorba,
+        '#ajax' => array(
+          'callback' => 'islandora_xquery_admin_form_ajax_callback',
+          'wrapper' => $id,
+          'effect' => 'fade',
+          'event' => 'change',
+        ),
+      ),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function submitForm(array $values) {
+    variable_set('islandora_xquery_zorba', $values['executable']);
   }
 
 }

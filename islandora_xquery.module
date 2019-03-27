@@ -24,11 +24,31 @@ function islandora_xquery_menu() {
   $items = array();
   $items['admin/islandora/tools/xquery/manage'] = array(
     'title' => 'XQuery',
+    'description' => 'Configure Islandora XQuery',
+    'access arguments' => array('administer islandora_xquery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_admin_form'),
+    'file' => 'includes/admin.form.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/islandora/tools/xquery/manage/template'] = array(
+    'title' => 'Templates',
     'description' => 'Configure templates for Islandora XQuery',
     'access arguments' => array('administer islandora_xquery'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_xquery_admin_form'),
     'file' => 'includes/admin.form.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
+  );
+  $items['admin/islandora/tools/xquery/manage/processor'] = array(
+    'title' => 'Processors',
+    'description' => 'Configure Islandora XQuery processor',
+    'access arguments' => array('administer islandora_xquery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_processor_admin_form'),
+    'file' => 'includes/processor_admin.form.inc',
+    'type' => MENU_LOCAL_TASK,
   );
   $items['admin/islandora/tools/xquery/manage/template/%'] = array(
     'title' => 'Manage Template',

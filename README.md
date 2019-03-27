@@ -7,7 +7,9 @@ This module utilizes Zorba to run XQueries against XML documents stored in Fedor
 ## Requirements
 
 In addition to a functioning Islandora instance with the Libraries API, this module requires the following modules/libraries:
-* [Zorba](http://www.zorba.io/home)
+* An XQuery processor, one of:
+    * [Zorba](http://www.zorba.io/home); or,
+    * [BaseX](http://basex.org/)
 * [libxdiff](http://www.xmailserver.org/xdiff-lib.html)
 * [PHP xdiff Extension](http://www.php.net/manual/en/intro.xdiff.php)
 * [GeSHi](http://qbnz.com/highlighter/)
@@ -18,7 +20,7 @@ In addition to a functioning Islandora instance with the Libraries API, this mod
 Here’s [an example installation script](resources/install_islandora_xquery.sh) for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
 
 Basic Algorithm:
-* [Install Zorba](http://www.zorba.io/documentation/latest/zorba/install)
+* Install XQuery processor
 * [Compile libxdiff from source (./configure, make, make install)](http://www.xmailserver.org/xdiff-lib.html)
 * [Install PHP xdiff extension](http://www.php.net/manual/en/xdiff.setup.php)
 * Install GeSHi using the Libraries API (put geshi folder in sites/all/libraries)
@@ -27,7 +29,10 @@ Basic Algorithm:
 
 ## Configuration
 
-Templates can be added for re-use at /admin/islandora/tools/xquery/manage.
+At installation time, it may be necessary to select and configure the XQuery
+processor to be used at `admin/islandora/tools/xquery/manage/processor`.
+
+Templates can be added for re-use at `admin/islandora/tools/xquery/manage`.
 
 ## Troubleshooting/Issues
 
