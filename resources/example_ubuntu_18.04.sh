@@ -27,11 +27,11 @@ cd libxdiff-0.23
 make
 sudo make install
 cd $SCRATCH_DIR
-sudo pear install pecl/xdiff-1.5.2
+sudo pear install pecl/xdiff
 rm -rf libxdiff-0.23
 
 # Add the xdiff extension to php configuration
-sudo echo "extension=xdiff.so" > /etc/php/7.2/mods-available/xdiff.ini
+echo "extension=xdiff.so" | sudo tee /etc/php/7.2/mods-available/xdiff.ini > /dev/null
 sudo phpenmod xdiff
 
 # Restart apache so extension kicks in
