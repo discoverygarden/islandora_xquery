@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script should be run as an unprivileged user who has permission to run
+# "sudo"... shouldn't break if run as root, but... really doesn't need to be.
+
 DRUPAL_ROOT=${1:-/var/www/drupal7}
 
 if [ ! -d $DRUPAL_ROOT ]; then
