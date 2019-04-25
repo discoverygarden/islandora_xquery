@@ -13,7 +13,7 @@ fi
 SCRATCH_DIR=$(mktemp -d)
 
 
-sudo apt-get install basex build-essential php-dev php-pear
+sudo apt install -y basex build-essential php-dev php-pear
 
 cd $SCRATCH_DIR
 
@@ -46,11 +46,25 @@ tar -xzf geshi.tar.gz -C $DRUPAL_ROOT/sites/all/libraries
 
 # Pull down the code from github
 cd $DRUPAL_ROOT/sites/all/modules
-git clone https://github.com/discoverygarden/islandora_object_lock.git
-git clone https://github.com/discoverygarden/islandora_xquery.git
-drush en islandora_object_lock
-drush en islandora_xquery
+if [ -d islandora_object_lock ]; then
+  cd islandora_object_lock
+  git checkout 7.x
+  git pull
+  cd $DRUPAL_ROOT/sites/all/modules
+else
+  git clone https://github.com/discoverygarden/islandora_object_lock.git
+fi
+if [ -d islandora_xquery ]; then
+  cd islandora_xquery
+  git checkout 7.x
+  git pull
+else
+  git clone https://github.com/discoverygarden/islandora_xquery.git
+fi
+drush @sites en -y islandora_object_lock
+drush @sites en -y islandora_xquery
 drush vset --exact islandora_xquery_basex_executable $(which basex)
+drush @sites cc all -y
 
 #Go home.
 cd /
