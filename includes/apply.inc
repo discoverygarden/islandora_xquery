@@ -154,7 +154,7 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
 
   $diff = $result->diff;
 
-  $old = $datastream->getContent();
+  $old = $datastream->content;
   $new = xdiff_string_patch($old, $diff);
 
   // Exit early if patch fails.
