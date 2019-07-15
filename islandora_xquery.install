@@ -95,6 +95,7 @@ function islandora_xquery_schema() {
       'id' => array(
         'description' => "Unique ID",
         'type' => 'serial',
+        'not null' => TRUE,
         'unsigned' => TRUE,
       ),
       'batch_id' => array(
