@@ -234,3 +234,32 @@ function islandora_xquery_uninstall() {
 function islandora_xquery_update_7100() {
   variable_set('islandora_xquery_implementation', 'zorba');
 }
+
+/**
+ * Update Islandora Xquery Diffs table primary key to not allow NULL values.
+ */
+function islandora_xquery_update_7101() {
+  // For sanity, let's make sure there are no null values in the table...
+  $results = db_select('islandora_xquery_diffs', 'i')
+    ->fields('i', array('id'))
+    ->isNull('id')
+    ->execute()
+    ->rowCount();
+
+  if ($results) {
+    return new DrupalUpdateException('NULL entries found in islandora_xquery_diffs table, please manually correct any rows with NULL values.');
+  }
+  else {
+    db_drop_primary_key('islandora_xquery_diffs');
+    db_change_field('islandora_xquery_diffs', 'id', 'id', array(
+      'description' => "Unique ID",
+      'type' => 'serial',
+      'not null' => TRUE,
+      'unsigned' => TRUE,
+    ), array(
+      'primary key' => array(
+        'id',
+      ),
+    ));
+  }
+}
