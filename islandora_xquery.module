@@ -172,16 +172,21 @@ function islandora_xquery_access($association_id) {
  * Implements hook_islandora_solr_primary_display().
  */
 function islandora_xquery_islandora_solr_primary_display() {
-  return array(
-    'xquery' => array(
-      'name' => t('XQuery'),
-      'module' => 'islandora_xquery',
-      'file' => 'includes/solr_results.inc',
-      'class' => 'IslandoraSolrResultsXquery',
-      'function' => 'displayResults',
-      'description' => t('Search results for performing an XQuery find/replace operation.'),
-    ),
-  );
+  $display = array('xquery' => NULL);
+
+  if (user_access('search and replace with xquery')) {
+    $display = array(
+      'xquery' => array(
+        'name' => t('XQuery'),
+        'module' => 'islandora_xquery',
+        'file' => 'includes/solr_results.inc',
+        'class' => 'IslandoraSolrResultsXquery',
+        'function' => 'displayResults',
+        'description' => t('Search results for performing an XQuery find/replace operation.'),
+      ),
+    );
+  }
+  return $display;
 }
 
 /**
