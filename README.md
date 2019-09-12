@@ -17,7 +17,11 @@ In addition to a functioning Islandora instance with the Libraries API, this mod
 
 ## Installation
 
-Here’s [an example installation script](resources/install_islandora_xquery.sh) for Ubuntu 12.04.  Your mileage may vary with other distros/versions.  This script will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
+Example installation scripts:
+* [Ubuntu 12.04](resources/install_islandora_xquery.sh)
+* [Ubuntu 18.04 and RedHat/Centos 7](resources/install_islandora_xquery_with_basex.sh)
+
+Your mileage may vary with other distros/versions.  These scripts will handle installing the islandora_xquery module and all of its dependencies.  It assumes that you have a functioning Islandora install with Drush.
 
 Basic Algorithm:
 * Install XQuery processor
