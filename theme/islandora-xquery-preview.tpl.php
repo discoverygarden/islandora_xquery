@@ -6,6 +6,11 @@
 ?>
 
 <div class="islandora-xquery-preview">
+  <?php if(variable_get('islandora_xquery_show_batch_id', FALSE)): ?>
+    <div class="islandora-xquery-batch-id">
+      <p><?php print "Batch ID: " . $batch_id?></p>
+    </div>
+  <?php endif ?>
   <div class="islandora-xquery-preview-controls">
     <ul class="islandora-xquery-preview-control-list">
       <li class="islandora-xquery-preview-control-li"><?php print islandora_xquery_get_apply_link($batch_id); ?></li>
