@@ -42,7 +42,7 @@ function islandora_xquery_apply_results($batch_id) {
  * @param array $context
  *   The batch context.
  */
-function islandora_xquery_apply_query_batch_operation($batch_id, array &$context) {
+function islandora_xquery_apply_query_batch_operation($batch_id, &$context) {
   module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
 
   if (!isset($context['sandbox']['progress'])) {
