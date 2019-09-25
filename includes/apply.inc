@@ -104,6 +104,7 @@ function islandora_xquery_apply_query_batch_operation($batch_id, &$context) {
     }
     islandora_object_lock_set_object_lock($result->pid);
     islandora_xquery_apply_query_batch_apply_diff($result, $context);
+    islandora_xquery_remove_object_lock($fedora_object);
   }
 
   $context['results']['ignored_objects'] = $ignored_objects;
@@ -166,10 +167,6 @@ function islandora_xquery_apply_query_batch_apply_diff($result, &$context) {
   // Exit early if datastream update fails.
   try {
     $datastream->setContentFromString($new);
-    if (module_exists('islandora_object_lock')) {
-      module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
-      islandora_object_lock_remove_object_lock($result->pid);
-    }
   }
   catch (Exception $e) {
     islandora_xquery_apply_query_batch_update_progress($result, ISLANDORA_XQUERY_STATUS_DATSTREAM_UPDATE_FAIL, $context);
@@ -200,6 +197,21 @@ function islandora_xquery_apply_query_batch_update_progress($result, $status, &$
   // Update progress.
   $context['sandbox']['progress']++;
   $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
+}
+
+/**
+ * Removes the object lock if it is set.
+ *
+ * @param AbstractObject $object
+ *   The fedora object.
+ */
+function islandora_xquery_remove_object_lock(AbstractObject $object) {
+  if (module_exists('islandora_object_lock')) {
+    module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
+    if (islandora_object_lock_is_locked($object)) {
+      islandora_object_lock_remove_object_lock($object->id);
+    }
+  }
 }
 
 /**
