@@ -22,7 +22,7 @@ function islandora_xquery_apply_results($batch_id) {
     'operations' => array(
       array(
         'islandora_xquery_apply_query_batch_operation',
-        array($batch_id),
+        array($batch_id, 'is_backend' => FALSE),
       ),
     ),
   ));
@@ -39,10 +39,12 @@ function islandora_xquery_apply_results($batch_id) {
  *
  * @param int $batch_id
  *   Identifier for the batch that previously ran the xquery.
+ * @param bool $is_backend
+ *   Whether the batch is being run by drush on the backend.
  * @param array $context
  *   The batch context.
  */
-function islandora_xquery_apply_query_batch_operation($batch_id, &$context) {
+function islandora_xquery_apply_query_batch_operation($batch_id, $is_backend, &$context) {
   module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
 
   if (!isset($context['sandbox']['progress'])) {
@@ -50,8 +52,10 @@ function islandora_xquery_apply_query_batch_operation($batch_id, &$context) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['total'] = islandora_xquery_apply_query_batch_get_total($batch_id);
 
-    // Jam the batch id into the results array for later use.
+    // Jam the batch id and is_backend flag
+    // into the results array for later use.
     $context['results']['batch_id'] = $batch_id;
+    $context['results']['is_backend'] = $is_backend;
 
     // Avoid divide by zero.
     if ($context['sandbox']['total'] == 0) {
@@ -235,5 +239,5 @@ function islandora_xquery_apply_query_batch_finished($success, $results, $operat
     drupal_set_message(filter_xss($output));
   }
   // Delete all appropriate db records and redirect.
-  islandora_xquery_cancel_results($results['batch_id']);
+  islandora_xquery_cancel_results($results['batch_id'], !$results['is_backend']);
 }

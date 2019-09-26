@@ -43,7 +43,7 @@ function drush_islandora_xquery_batch_process() {
     'operations' => array(
       array(
         'islandora_xquery_apply_query_batch_operation',
-        array($batch_id),
+        array($batch_id, 'is_backend' => TRUE),
       ),
     ),
   );
