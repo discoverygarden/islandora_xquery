@@ -10,7 +10,7 @@
  */
 function islandora_xquery_drush_command() {
   $commands = array();
-  $commands['islandora_xquery_batch_process'] = array(
+  $commands['islandora_xquery_batch_process_command'] = array(
     'description' => dt('Process an Islandora XQuery batch set.'),
     'options' => array(
       'batch_id' => array(
@@ -26,7 +26,7 @@ function islandora_xquery_drush_command() {
 /**
  * Command callback for processing XQuery batches.
  */
-function drush_islandora_xquery_batch_process() {
+function drush_islandora_xquery_batch_process_command() {
   module_load_include('inc', 'islandora_xquery', 'includes/apply');
 
   // @XXX: Standard logged-in-user paranoia.
