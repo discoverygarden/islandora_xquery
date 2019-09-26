@@ -10,14 +10,18 @@
  *
  * @param int $batch_id
  *   Identifier for the batch that ran the xquery.
+ * @param bool $http_redirect
+ *   Whether to issue an HTTP redirect after cancelling pending results.
  */
-function islandora_xquery_cancel_results($batch_id) {
+function islandora_xquery_cancel_results($batch_id, $http_redirect = TRUE) {
   // Get the redirect url.
-  $redirect = db_select('islandora_xquery_batches', 'batches')
-    ->fields('batches', array('redirect'))
-    ->condition('batch_id', $batch_id, '=')
-    ->execute()
-    ->fetchField();
+  if ($http_redirect) {
+    $redirect = db_select('islandora_xquery_batches', 'batches')
+      ->fields('batches', array('redirect'))
+      ->condition('batch_id', $batch_id, '=')
+      ->execute()
+      ->fetchField();
+  }
 
   // Clear out the db.
   db_delete('islandora_xquery_diffs')
@@ -29,6 +33,8 @@ function islandora_xquery_cancel_results($batch_id) {
     ->execute();
 
   // Redirect.
-  $url = drupal_parse_url($redirect);
-  drupal_goto($url['path'], $url);
+  if ($http_redirect) {
+    $url = drupal_parse_url($redirect);
+    drupal_goto($url['path'], $url);
+  }
 }

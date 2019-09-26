@@ -20,7 +20,8 @@ rm -rf libxdiff-0.23
 
 # Add the xdiff extension to php configuration
 echo "extension=xdiff.so" > xdiff.ini
-sudo cp xdiff.ini /etc/php5/conf.d
+sudo cp xdiff.ini /etc/php5/mods-available/
+sudo php5enmod xdiff
 rm xdiff.ini
 
 # Restart apache so extension kicks in

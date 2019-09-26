@@ -41,6 +41,15 @@ function islandora_xquery_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -1,
   );
+  $items['admin/islandora/tools/xquery/manage/general'] = array(
+    'title' => 'General',
+    'description' => 'General configuration Islandora XQuery',
+    'access arguments' => array('administer islandora_xquery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_xquery_general_admin_form'),
+    'file' => 'includes/general_admin.form.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
   $items['admin/islandora/tools/xquery/manage/processor'] = array(
     'title' => 'Processors',
     'description' => 'Configure Islandora XQuery processor',
