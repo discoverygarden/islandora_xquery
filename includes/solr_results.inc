@@ -31,14 +31,17 @@ class IslandoraSolrResultsXquery extends IslandoraSolrResults {
    *   Rendered Solr results
    */
   public function printResults($results) {
+    global $user;
     if (module_exists('islandora_object_lock')) {
       module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
       $locked = islandora_object_lock_get_locks(0, 10000);
-      $found_pids = array();
+      $conflicts = array();
       foreach ($results['response']['objects'] as $object) {
-        $found_pids[] = $object['PID'];
+        if (isset($locked[$object['PID']]) && $locked[$object['PID']]['user'] != $user->name) {
+          $conflicts[] = $locked[$object['PID']];
+        }
       }
-      $conflicts = array_intersect(array_keys($locked), $found_pids);
+
       if (!empty($conflicts)) {
         $output = count($conflicts) == 1 ? t('This object in the resultset is currently locked by other users') : t('These objects in the resultset are currently locked by other users');
 
@@ -386,9 +389,10 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
     $old_proc = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
     $processor = new IslandoraSolrQueryProcessor();
     $context['sandbox']['object_range']->islandoraSolrQueryProcessor = $processor;
-    $processor->solrStart = $context['sandbox']['search_settings']['offset'];
+    $processor->buildQuery($old_proc->solrQuery, $old_proc->solrParams);
     $processor->solrLimit = $context['sandbox']['search_settings']['step_size'];
-    $processor->buildAndExecuteQuery($old_proc->solrQuery, $old_proc->solrParams);
+    $processor->solrStart = $context['sandbox']['search_settings']['offset'];
+    $processor->executeQuery();
     $solr_result = array_pop($processor->islandoraSolrResult['response']['objects']);
     $pid = $solr_result['PID'];
     $context['sandbox']['search_settings']['offset'] += $context['sandbox']['search_settings']['step_size'];
