@@ -45,6 +45,7 @@ function islandora_xquery_apply_results($batch_id) {
  *   The batch context.
  */
 function islandora_xquery_apply_query_batch_operation($batch_id, $is_backend, &$context) {
+  global $user;
   module_load_include('inc', 'islandora_object_lock', 'includes/utilities');
 
   if (!isset($context['sandbox']['progress'])) {
@@ -98,7 +99,7 @@ function islandora_xquery_apply_query_batch_operation($batch_id, $is_backend, &$
     $fedora_object = islandora_object_load($result->pid);
     $locked = islandora_object_lock_is_locked($fedora_object);
     $created_date = strtotime($fedora_object[$result->dsid]->createdDate);
-    if ($locked) {
+    if ($locked && $user->name != islandora_object_lock_get_lock_username($fedora_object)) {
       $ignored_objects[] = $result->pid;
       $include = FALSE;
     }
