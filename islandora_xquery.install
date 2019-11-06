@@ -53,7 +53,7 @@ function islandora_xquery_schema() {
       'xquery' => array(
         'description' => 'Holds the XQuery defined for an association',
         'type' => 'blob',
-        'size' => 'normal',
+        'size' => 'big',
         'not null' => TRUE,
       ),
     ),
@@ -157,6 +157,7 @@ function islandora_xquery_schema() {
       'xquery' => array(
         'description' => 'Xquery being applied in this batch',
         'type' => 'blob',
+        'size' => 'big',
         'not null' => TRUE,
       ),
       'redirect' => array(
@@ -262,4 +263,24 @@ function islandora_xquery_update_7101() {
       ),
     ));
   }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Updates xquery fields to use big blobs.
+ */
+function islandora_xquery_update_7102() {
+  db_change_field('islandora_xquery_xquery', 'xquery', 'xquery', array(
+    'description' => 'Holds the XQuery defined for an association',
+    'type' => 'blob',
+    'size' => 'big',
+    'not null' => TRUE,
+  ));
+  db_change_field('islandora_xquery_batches', 'xquery', 'xquery', array(
+    'description' => 'Xquery being applied in this batch',
+    'type' => 'blob',
+    'size' => 'big',
+    'not null' => TRUE,
+  ));
 }
