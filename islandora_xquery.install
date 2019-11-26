@@ -251,6 +251,7 @@ function islandora_xquery_update_7101() {
     return new DrupalUpdateException('NULL entries found in islandora_xquery_diffs table, please manually correct any rows with NULL values.');
   }
   else {
+    db_add_index('islandora_xquery_diffs', 'temp_id_index', array('id'));
     db_drop_primary_key('islandora_xquery_diffs');
     db_change_field('islandora_xquery_diffs', 'id', 'id', array(
       'description' => "Unique ID",
@@ -262,6 +263,7 @@ function islandora_xquery_update_7101() {
         'id',
       ),
     ));
+    db_drop_index('islandora_xquery_diffs', 'temp_id_index');
   }
 }
 
