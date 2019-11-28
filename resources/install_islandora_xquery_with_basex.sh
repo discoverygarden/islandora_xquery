@@ -67,7 +67,7 @@ sanityCheck()
 {
   test -d $drupalRoot
   checkSafe $? "$drupalRoot does not exist!"
-  if [ "$myOS" = "Ubuntu" -a "$majorRelease" -lt "18" ] || [ "$myOS" = "Redhat" -a "$majorRelease" -lt "7" ]; then
+  if [ "$myOS" = "Redhat" -a "$majorRelease" -lt "7" ]; then
     checkSafe $majorRelease "This script won't work on this version of $myOS"
   fi
 }

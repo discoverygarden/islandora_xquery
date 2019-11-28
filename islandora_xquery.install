@@ -187,17 +187,19 @@ function islandora_xquery_requirements($phase) {
   switch ($phase) {
     case 'runtime':
       $zorba_version = islandora_xquery_get_zorba_version();
-      if ($zorba_version === FALSE) {
-        $requirements['zorba'] = array(
-          'title' => $t('Zorba'),
-          'value' => $t('Zorba could not be found. Islandora XQuery requires Zorba %version.', array('%version' => ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION)),
+      $basex_version = islandora_xquery_get_basex_version();
+
+      if ($basex_version === FALSE && $zorba_version === FALSE) {
+        $requirements['xquery_processor'] = array(
+          'title' => $t('XQuery Processor'),
+          'value' => $t('Processor could not be found. Islandora XQuery requires Zorba %version or BaseX.', array('%version' => ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION)),
           'severity' => REQUIREMENT_ERROR,
         );
       }
-      elseif (version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
-        $requirements['zorba'] = array(
-          'title' => $t('Zorba'),
-          'value' => $t('Islandora XQuery requires Zorba %required_version. Version %version is currently installed.', array(
+      elseif ($basex_version === FALSE && version_compare($zorba_version, ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION, '!=')) {
+        $requirements['xquery_processor'] = array(
+          'title' => $t('XQuery Processor'),
+          'value' => $t('Islandora XQuery requires BaseX or Zorba %required_version. Zorba version %version is currently installed.', array(
             '%required_version' => ISLANDORA_XQUERY_ZORBA_REQUIRED_VERSION,
             '%version' => $zorba_version,
             )
@@ -206,9 +208,15 @@ function islandora_xquery_requirements($phase) {
         );
       }
       else {
-        $requirements['zorba'] = array(
-          'title' => $t('Zorba'),
-          'value' => $zorba_version,
+        if ($basex_version !== FALSE) {
+          $value = "BaseX " . $basex_version;
+        }
+        else {
+          $value = "Zorba " . $zorba_version;
+        }
+        $requirements['xquery_processor'] = array(
+          'title' => $t('XQuery Processor'),
+          'value' => $value,
           'severity' => REQUIREMENT_OK,
         );
       }
