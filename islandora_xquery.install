@@ -294,3 +294,17 @@ function islandora_xquery_update_7102() {
     'not null' => TRUE,
   ));
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Updates xquery diff field to use big blobs.
+ */
+function islandora_xquery_update_7103() {
+  db_change_field('islandora_xquery_diffs', 'diff', 'diff', array(
+    'description' => "Diff after find/replace.",
+    'type' => 'blob',
+    'size' => 'big',
+    'not null' => TRUE,
+  ));
+}

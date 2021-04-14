@@ -296,9 +296,11 @@ function islandora_xquery_run_query_batch_operation(array $dsids, $object_range,
   // Run the find/replace on all applicable datastreams.
   $current_object = islandora_xquery_run_query_batch_operation_get_object($context);
 
-  foreach ($current_object as $datastream) {
-    if (array_intersect($dsids, array($datastream->id))) {
-      islandora_xquery_run_query_batch_operation_generate_diff($current_object, $datastream, $xquery, $context);
+  if (is_object($current_object)) {
+    foreach ($current_object as $datastream) {
+      if (array_intersect($dsids, array($datastream->id))) {
+        islandora_xquery_run_query_batch_operation_generate_diff($current_object, $datastream, $xquery, $context);
+      }
     }
   }
 
