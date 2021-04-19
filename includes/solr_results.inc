@@ -391,7 +391,7 @@ function islandora_xquery_run_query_batch_operation_get_object(&$context) {
     $old_proc = $context['sandbox']['object_range']->islandoraSolrQueryProcessor;
     $processor = new IslandoraSolrQueryProcessor();
     $context['sandbox']['object_range']->islandoraSolrQueryProcessor = $processor;
-    $processor->buildQuery($old_proc->solrQuery, $old_proc->solrParams);
+    $processor->buildQuery($old_proc->solrQuery, $old_proc->internalSolrParams);
     $processor->solrLimit = $context['sandbox']['search_settings']['step_size'];
     $processor->solrStart = $context['sandbox']['search_settings']['offset'];
     $processor->executeQuery();
