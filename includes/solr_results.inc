@@ -159,7 +159,7 @@ function islandora_xquery_results_form($form, &$form_state, $object_results, $so
         $form['xquery_controls']['xquery_inputs']['tokens'] = array();
         foreach ($tokens as $token) {
           $form['xquery_controls']['xquery_inputs']['tokens'][$token['token_name']] = array(
-            '#type' => 'textfield',
+            '#type' => 'textarea',
             '#default_value' => $token['token_default'],
             '#title' => check_plain($token['token_name']),
             '#description' => check_plain($token['token_description']),
